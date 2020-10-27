@@ -8,4 +8,8 @@ runする
 ```
 docker run -p 8080:5000 -it -v $(pwd):/src jikken
 ``` 
-srcに行って
+srcに行って、app.js
+```
+node app.js
+```
+
