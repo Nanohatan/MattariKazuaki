@@ -42,4 +42,11 @@ io.sockets.on("connection",function(socket){
 		socket.broadcast.emit("erase_fromServer","");
 	});
 	socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+
+	//next turnボタンを押した際にチャットにメッセージを送る
+	socket.on("game_start",function(data){
+		console.log("次の描き手は" + data.player_name + "さんです。\n お題は" + data.theme　+ "です。");
+		io.sockets.emit("send_msg_fromServer", "次の描き手は" + data.player_name + "さんです。\n お題は" + data.theme　+ "です。");
+	});
+	
 });

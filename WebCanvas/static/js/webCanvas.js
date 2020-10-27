@@ -159,4 +159,19 @@ $(function(){
 		
 	});
 
+	// ゲームの処理
+	// clientの情報取得
+	// 1人を指名
+	// お題を提示
+	$("#gameStart").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("game_start",{
+			player_name: $("#player_name").val(),
+			theme: "ちくわ"
+		});
+	});
+	socket.on("send_msg_fromServer",function(data){
+		console.log(data);
+	});
+
 });
