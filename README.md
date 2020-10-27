@@ -6,6 +6,6 @@ docker build . -t jikken
 ``` 
 runする
 ```
-docker run -p 8080:5000 -it -v $(pwd):src jikken
+docker run -p 8080:5000 -it -v $(pwd):/src jikken
 ``` 
 
