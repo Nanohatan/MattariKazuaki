@@ -1,0 +1,26 @@
+body {
+	margin: 10px;
+	background-color:  #fff3cc;
+	color: #000;
+}
+
+#mycanvas {
+	border: 10px outset #999;
+	background-color: #fff;
+	cursor: crosshair;
+}
+
+.prev {
+	border: 2px solid #999;
+	background-color: #fff;
+}
+
+.thumbnail{
+	border: 2px solid #999;
+	margin-right: 5px;
+	background-color: #fff;
+}
+
+.sliders{
+	width: 100%;
+}

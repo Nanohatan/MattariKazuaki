@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<title>webCanvas</title>
+
+		<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="./css/slider.css">
+		<link rel="stylesheet" type="text/css" href="./css/webCanvasStyle.css">
+
+	</head>
+	<body>
+	<div class="row">
+		<div class="col-sm-12 col-md-8">
+			<canvas width="640" height="360" id="mycanvas">Canvasに対応した最新のブラウザをお使いください</canvas>
+		</div>
+		<div class="col-sm-12 col-md-4">
+			<form id="send">
+				<input type="text" id="name" class="form-control" placeholder="Your HN" required>
+				<input type="text" id="msg" class="form-control" placeholder="message" required>
+				<button type="submit" class="btn btn-primary btn-default">Send!</button>
+			</form>
+			<div style="background-color:#fff;overflow-y:scroll;width:300px; height:280px">
+				<ul id="chat" style="list-style:none;"></ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-12 col-md-9">
+			<div class="col-sm-3 col-md-1">
+				<canvas width="50" height="50" id="colorPrev" class="prev"></canvas>
+			</div>
+			<div class="col-sm-9 col-md-5">
+				<ul style="list-style:none;">
+					<li><label>R:	<input id="colorR" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
+					<li><label>G:	<input id="colorG" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
+					<li><label>B:	<input id="colorB" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
+				</ul>
+			</div>
+
+			<div class="col-sm-3 col-md-1">
+				<canvas width="50" height="50" id="widthPrev" class="prev"></canvas>
+			</div>
+			<div class="col-sm-9 col-md-5">
+				<label>Pen size:	<input id="penWidth" class="sliders" type="text" data-slider-max="25" data-slider-min="1" data-slider-value="1" ></label>
+			</div>
+		</div>
+<!-- 		<select id="penColor">
+			<option value="black">黒</option>
+			<option value="red">赤</option>
+			<option value="blue">青</option>
+			<option value="white">白</option>
+		</select>
+		<select id="penWidth">
+			<option value="1">細</option>
+			<option value="3">並</option>
+			<option value="5">太</option>
+		</select> -->
+	</div>
+	<div>
+		<div class="col-md-6">
+			<button type="button" id="erase" class="btn btn-primary btn-lg">消去</button>
+		</div>
+		<div class="col-md-6">
+			<button type="button" id="save" class="btn btn-lg">保存</div>
+		</div>
+	</div>
+	<div id="gallery"></div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./js/bootstrap-slider.js"></script>
+	<script type="text/javascript" src="./socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="./js/webCanvas.js"></script>
+	
+	</body>
+</html>
