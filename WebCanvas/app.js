@@ -32,6 +32,25 @@ io.sockets.on("connection",function(socket){
         console.log(data.msg);
         io.sockets.emit("send_msg_fromServer","["+ data.name+"] "+data.msg);
     });
+
+	//お題変更
+	socket.on("send_changeOdai_fromClient",function(data){
+		odai = data.odai;
+		console.log("push odai button \nnow Odai is " + odai);
+		io.sockets.emit("send_msg_fromServer",data.odaiLog);
+	});
+	//回答の受信＋正誤判定
+	socket.on("send_userAnswer_fromClient",function(data){
+		console.log("user answer = " +data.userAnswer + "\nnow odai is " + odai);
+		var answer = data.userAnswer;
+		if (data.userAnswer.includes(odai) ){ //文字列に含まれるかどうか？
+			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ)ﾉｼ\"";
+		} else {
+			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
+		}
+		io.sockets.emit("send_msg_fromServer",answer);
+	});
+
         //送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
 		socket.broadcast.json.emit("draw_line_fromServer",data);

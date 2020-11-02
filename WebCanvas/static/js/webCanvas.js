@@ -151,12 +151,36 @@ $(function(){
 			msg: $("#msg").val()
 		});
 		$("#msg").val("").focus();
-
 	});
+
+	//回答(追加)
+	$("#answer").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("send_userAnswer_fromClient",{
+			userAnswer: $("#userAnswer").val()
+		});
+		$("#userAnswer").val("").focus();
+	});
+
+
 	socket.on("send_msg_fromServer",function(data){
 		console.log(data);
-		$("#chat").append($("<li>").text(data));
-		
+		//チャットを上詰めに変更
+		$($("<li>").text(data)).prependTo("#chat");
+		//$("#chat").append($("<li>").text(data));
 	});
 
 });
+
+//お題変更のボタン処理
+let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
+function change_odai(){
+	var odai = odaiList[Math.floor( Math.random() * odaiList.length )];
+	var val = document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\">お題は：" + odai + "</font></td>" ;
+
+	var socket = io.connect();
+	socket.json.emit("send_changeOdai_fromClient",{
+		odaiLog: "お題「" + odai + "」，描く人〇〇さん",
+		odai: odai
+	});
+}

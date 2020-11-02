@@ -10,6 +10,12 @@
 
 	</head>
 	<body>
+<!--1：ここから追加-->
+	<div class="row">
+		<div id="odai" class="col-sm-12 col-md-7">
+		<h2 style="text-align:center"><font size="7">お題は：hoge</font></td>
+	</div>
+<!-- 1：ここまで -->
 	<div class="row">
 		<div class="col-sm-12 col-md-8">
 			<canvas width="640" height="360" id="mycanvas">Canvasに対応した最新のブラウザをお使いください</canvas>
@@ -20,6 +26,15 @@
 				<input type="text" id="msg" class="form-control" placeholder="message" required>
 				<button type="submit" class="btn btn-primary btn-default">Send!</button>
 			</form>
+<!-- 2：ここから追加 -->
+			<form id="changeOdai">
+				<input type="button" class="btn btn-success" value="change Odai" onClick="change_odai()" >
+			</form>
+			<form id ="answer">
+				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
+				<button type="submit" class="btn btn-info">Answer!</button>
+			</form>
+<!-- 2：ここまで -->
 			<div style="background-color:#fff;overflow-y:scroll;width:300px; height:280px">
 				<ul id="chat" style="list-style:none;"></ul>
 			</div>
@@ -75,6 +90,6 @@
 	<script type="text/javascript" src="./js/bootstrap-slider.js"></script>
 	<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="./js/webCanvas.js"></script>
-	
+
 	</body>
 </html>
