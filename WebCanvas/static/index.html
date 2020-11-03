@@ -6,6 +6,23 @@
 </head>
 <body>
 
+    <div class="container">
+        <h1>WebSocket-Chat</h1>
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="roomLabel" for="rooms">部屋：</label>
+                <select class="form-control" id="rooms">
+                    <option value="room01">部屋01</option>
+                    <option value="room02">部屋02</option>
+                </select>
+                <label class="nameLabel" for="msgForm">名前：</label>
+                <input type="text" class="form-control" id="msgForm">
+            </div>
+            <button type="submit" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat'">入室</button>
+        </form>
+        <div id="chatLogs"></div>
+    </div>
+
 <h1>This is a Heading</h1>
 <p>This is a paragraph.</p>
 <a href="/canv_only">キャンバスオンリー</a>
