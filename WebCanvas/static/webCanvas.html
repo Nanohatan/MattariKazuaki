@@ -12,8 +12,20 @@
 	<body>
 <!--1：ここから追加-->
 	<div class="row">
-		<div id="odai" class="col-sm-12 col-md-7">
-		<h2 style="text-align:center"><font size="7">お題は：hoge</font></td>
+		<div id="odai" class="col-sm-12 col-md-8">
+			<h2 style="text-align:center"><font size="7">ゲーム開始待ち…</font></td>
+		</div>
+		<div class="col-sm-12 col-md-4">
+			<div id="timer">
+				<h2>0秒</td>
+			</div>
+			<form id="startTimer">
+				<input type="button" class="btn btn-dark" value="Game Start" onClick="startTimer()" >
+			</form>
+			<form id="endTimer">
+				<input type="button" class="btn btn-dark" value="Stop Timer" onClick="stopTimer()" >
+			</form>
+		</div>
 	</div>
 <!-- 1：ここまで -->
 	<div class="row">
@@ -27,9 +39,6 @@
 				<button type="submit" class="btn btn-primary btn-default">Send!</button>
 			</form>
 <!-- 2：ここから追加 -->
-			<form id="changeOdai">
-				<input type="button" class="btn btn-success" value="change Odai" onClick="change_odai()" >
-			</form>
 			<form id ="answer">
 				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
 				<button type="submit" class="btn btn-info">Answer!</button>

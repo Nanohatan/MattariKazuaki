@@ -156,12 +156,29 @@ $(function(){
 	//回答(追加)
 	$("#answer").submit(function(e){
 		e.preventDefault();
+		console.log("user answer = " + $("#userAnswer").val());
+		var answer = $("#userAnswer").val();
+		if (answer.includes(odai) ){ //文字列に含まれるかどうか？
+			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ)ﾉｼ\"";
+			nowtime = 0;
+			odai = "まだ決まってないよ";
+		} else {
+			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
+		}
 		socket.json.emit("send_userAnswer_fromClient",{
-			userAnswer: $("#userAnswer").val()
+			userAnswer: answer
 		});
 		$("#userAnswer").val("").focus();
 	});
 
+	//名前入力
+	socket.on('connect', function(){
+		socket.json.emit('setUserName', prompt('ユーザー名を入力してください'));
+	});
+
+	socket.on('connect', function(){
+		socket.json.emit('setUserName', prompt('ユーザー名を入力してください'));
+	});
 
 	socket.on("send_msg_fromServer",function(data){
 		console.log(data);
@@ -174,13 +191,50 @@ $(function(){
 
 //お題変更のボタン処理
 let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
+var odai;
 function change_odai(){
-	var odai = odaiList[Math.floor( Math.random() * odaiList.length )];
-	var val = document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\">お題は：" + odai + "</font></td>" ;
+	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
+	var val = document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\">" + odai + "</font></td>" ;
 
 	var socket = io.connect();
 	socket.json.emit("send_changeOdai_fromClient",{
 		odaiLog: "お題「" + odai + "」，描く人〇〇さん",
 		odai: odai
 	});
+}
+
+//タイマー
+var nowtime = 0;
+var drowFlag = true;
+var timer;
+var timerText = "<h2>";
+var time = function(){
+	var val = document.getElementById("timer").innerHTML = timerText + nowtime + "秒</h2>";
+	if (nowtime > 0){
+		nowtime = nowtime - 1;
+	} else {
+		console.log("timer reset!");
+		clearInterval(timer);
+		if (drowFlag){
+			nowtime = 5;
+			timerText = "<h2 style=\"color:blue\">";
+			var val = document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\">次のお題は…I˙꒳​˙)</font></td>" ;
+		} else {
+			nowtime = 10;
+			timerText = "<h2 style=\"color:red\">";
+			change_odai();
+		}
+	startTimer();
+	drowFlag = !drowFlag;
+	return;
+	}
+}
+
+function startTimer(){
+	timer = setInterval(time, 1000);
+}
+
+function stopTimer(){
+	clearInterval(timer);
+	var val = document.getElementById("timer").innerHTML = "<h2>ストップ</td>" ;
 }

@@ -39,19 +39,24 @@ io.sockets.on("connection",function(socket){
 		console.log("push odai button \nnow Odai is " + odai);
 		io.sockets.emit("send_msg_fromServer",data.odaiLog);
 	});
-	//回答の受信＋正誤判定
+
+	//回答の受信 + 送信
 	socket.on("send_userAnswer_fromClient",function(data){
 		console.log("user answer = " +data.userAnswer + "\nnow odai is " + odai);
-		var answer = data.userAnswer;
-		if (data.userAnswer.includes(odai) ){ //文字列に含まれるかどうか？
-			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ)ﾉｼ\"";
-		} else {
-			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
-		}
-		io.sockets.emit("send_msg_fromServer",answer);
+		io.sockets.emit("send_msg_fromServer",data.userAnswer);
 	});
 
-        //送信されてきた描画情報を送信元以外のクライアントに転送
+	//名前受信
+	socket.on('setUserName', function (userName) {
+		if(!userName) {
+			userName = "秘密(*/□＼*)";
+		}
+		userName = userName + "さん"
+		socket.userName = userName;
+		console.log("new user name : " + socket.userName);
+	});
+
+	//送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
 		socket.broadcast.json.emit("draw_line_fromServer",data);
 	});
