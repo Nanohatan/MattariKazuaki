@@ -5,6 +5,7 @@ $(function(){
 		console.log("canvas err");
 		return false;
 	}
+
 	//メインキャンバスのコンテキスト（ペン形状を円形に設定）
 	var ctx = canvas.getContext("2d");
 	ctx.lineCap = "round";
@@ -198,7 +199,6 @@ $(function(){
             $("#rooms").prop("disabled", true);
             $("sendButton").text("send");
             isEnter = true;
-        }
-
-
+		}
+		
 });

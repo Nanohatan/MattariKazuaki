@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/canv_and_chat', (req, res) => {
-    res.sendfile('static/webCanvas.html');
+    res.sendFile('/src/WebCanvas/static/webCanvas.html');
 });
 
 app.get('/canv_only', (req, res) => {
