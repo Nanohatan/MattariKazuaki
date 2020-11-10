@@ -46,16 +46,6 @@ io.sockets.on("connection",function(socket){
 		io.sockets.emit("send_msg_fromServer",data.userAnswer);
 	});
 
-	//名前受信
-	socket.on('setUserName', function (userName) {
-		if(!userName) {
-			userName = "秘密(*/□＼*)";
-		}
-		userName = userName + "さん"
-		socket.userName = userName;
-		console.log("new user name : " + socket.userName);
-	});
-
 	//送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
 		socket.broadcast.json.emit("draw_line_fromServer",data);

@@ -127,7 +127,6 @@ $(function(){
 		}
 	});
 
-
 	//画像の保存、サムネイルにしてギャラリーに追加
 	$("#save").click(function(){
 		var img = $("<img>").attr({
@@ -169,15 +168,6 @@ $(function(){
 			userAnswer: answer
 		});
 		$("#userAnswer").val("").focus();
-	});
-
-	//名前入力
-	socket.on('connect', function(){
-		socket.json.emit('setUserName', prompt('ユーザー名を入力してください'));
-	});
-
-	socket.on('connect', function(){
-		socket.json.emit('setUserName', prompt('ユーザー名を入力してください'));
 	});
 
 	socket.on("send_msg_fromServer",function(data){
