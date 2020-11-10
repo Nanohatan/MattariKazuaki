@@ -163,11 +163,39 @@ $(function(){
 	// clientの情報取得
 	// 1人を指名
 	// お題を提示
+	var theme = "ちくわ";
+
 	$("#gameStart").submit(function(e){
 		e.preventDefault();
 		socket.json.emit("game_start",{
 			player_name: $("#player_name").val(),
-			theme: "ちくわ"
+			theme: theme
+		});
+	});
+	socket.on("send_msg_fromServer",function(data){
+		console.log(data);
+	});
+
+	var PassSec;   // 秒数カウント用変数
+ 
+	// 繰り返し処理の中身
+	$("#timerStart").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("game_start",{
+			player_name: $("#player_name").val(),
+			theme: theme
+		});
+	});
+	socket.on("send_msg_fromServer",function(data){
+		console.log(data);
+	});
+
+	//回答
+	$("#answer").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("judge",{
+			answer: $("#answer_word").val(),
+			theme: theme
 		});
 	});
 	socket.on("send_msg_fromServer",function(data){

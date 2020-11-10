@@ -48,5 +48,16 @@ io.sockets.on("connection",function(socket){
 		console.log("次の描き手は" + data.player_name + "さんです。\n お題は" + data.theme　+ "です。");
 		io.sockets.emit("send_msg_fromServer", "次の描き手は" + data.player_name + "さんです。\n お題は" + data.theme　+ "です。");
 	});
+
+	//answerボタンを押した際に正解かどうかを判定する
+	socket.on("judge",function(data){
+		if(data.answer == data.theme){
+			console.log(data.answer + ":正解！");
+			io.sockets.emit("send_msg_fromServer","正解！答えは" + data.answer + "です！");
+		}else{
+			console.log("正解:" + data.theme + "\n" + data.answer + ":不正解");
+			io.sockets.emit("send_msg_fromServer",data.answer + "は不正解！");
+		}
+	});
 	
 });
