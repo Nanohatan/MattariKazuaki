@@ -146,6 +146,8 @@ $(function(){
 	});
 
 	//チャットメッセージの送信処理
+	//これはデフォルトの送信処理です。多分もういらない
+	/*
 	$("#send").submit(function(e){
 		e.preventDefault();
 		socket.json.emit("send_msg_fromClient",{
@@ -160,23 +162,27 @@ $(function(){
 		$("#chat").append($("<li>").text(data));
 		
 	});
-
+	一回消してみる
+	*/
 
 	//追加項目
-	
+	//----------------------------------------↓こっから
+
+		sessionStorage.setItem('loginUser', '');
+
         var isEnter = false;
         var name = '';
  
         // C04. server_to_clientイベント・データを受信する
         socket.on("server_to_client", function(data){appendMsg(data.value)});
         function appendMsg(text) {
-            $("#chatLogs").append("<div>" + text + "</div>");
+            $("#chat").append("<div>" + text + "</div>");
         }
  
         $("form").submit(function(e) {
-            var message = $("#msgForm").val();
+            var message = $("#msg").val();
             var selectRoom = $("#rooms").val();
-            $("#msgForm").val('');
+            $("#msg").val('');
             if (isEnter) {
               message = "[" + name + "]: " + message;
                 // C03. client_to_serverイベント・データを送信する
@@ -200,5 +206,6 @@ $(function(){
             $("sendButton").text("send");
             isEnter = true;
 		}
-		
+		//追加項目
+		//--------------------↑ここまで
 });

@@ -57,8 +57,6 @@ io.sockets.on("connection",function(socket){
 
 
 
-
-
  
 // S04. connectionイベントを受信する
 io.sockets.on('connection', function(socket) {
