@@ -10,6 +10,24 @@
 
 	</head>
 	<body>
+<!--1：ここから追加-->
+	<div class="row">
+		<div id="odai" class="col-sm-12 col-md-8">
+			<h2 style="text-align:center"><font size="7">ゲーム開始待ち…</font></td>
+		</div>
+		<div class="col-sm-12 col-md-4">
+			<div id="timer">
+				<h2>0秒</td>
+			</div>
+			<form id="startTimer">
+				<input type="button" class="btn btn-dark" value="Game Start" onClick="startTimer()" >
+			</form>
+			<form id="endTimer">
+				<input type="button" class="btn btn-dark" value="Stop Timer" onClick="stopTimer()" >
+			</form>
+		</div>
+	</div>
+<!-- 1：ここまで -->
 	<div class="row">
 		<div class="col-sm-12 col-md-8">
 			<canvas width="640" height="360" id="mycanvas">Canvasに対応した最新のブラウザをお使いください</canvas>
@@ -27,13 +45,10 @@
 				<input type="text" id="msg" class="form-control" placeholder="message" required>
 				<button type="submit" class="btn btn-primary btn-default">Send!</button>
 			</form>
-			<form id="gameStart">
-				<input type="text" id="player_name" class="form-control" placeholder="Name" required>
-				<button type="submit" class="btn btn-primary btn-default">Next Turn</button>
-			</form>
-			<form id="answer">
-				<input type="text" id="answer_word" class="form-control" placeholder="answer" required>
-				<button type="submit" class="btn btn-primary btn-default">Answer!</button>
+<!-- 2：ここから追加 -->
+			<form id ="answer">
+				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
+				<button type="submit" class="btn btn-info">Answer!</button>
 			</form>
 			<div style="background-color:#fff;overflow-y:scroll;width:300px; height:280px">
 				<ul id="chat" style="list-style:none;"></ul>

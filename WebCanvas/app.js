@@ -32,7 +32,31 @@ io.sockets.on("connection",function(socket){
         console.log(data.msg);
         io.sockets.emit("send_msg_fromServer","["+ data.name+"] "+data.msg);
     });
-        //送信されてきた描画情報を送信元以外のクライアントに転送
+
+	//お題変更
+	socket.on("send_changeOdai_fromClient",function(data){
+		odai = data.odai;
+		console.log("push odai button \nnow Odai is " + odai);
+		io.sockets.emit("send_msg_fromServer",data.odaiLog);
+	});
+
+	//回答の受信 + 送信
+	socket.on("send_userAnswer_fromClient",function(data){
+		console.log("user answer = " +data.userAnswer + "\nnow odai is " + odai);
+		io.sockets.emit("send_msg_fromServer",data.userAnswer);
+	});
+
+	//名前受信
+	socket.on('setUserName', function (userName) {
+		if(!userName) {
+			userName = "秘密(*/□＼*)";
+		}
+		userName = userName + "さん"
+		socket.userName = userName;
+		console.log("new user name : " + socket.userName);
+	});
+
+	//送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
 		socket.broadcast.json.emit("draw_line_fromServer",data);
 	});
