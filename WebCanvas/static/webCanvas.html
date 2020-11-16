@@ -20,10 +20,10 @@
 				<h2>0秒</td>
 			</div>
 			<form id="startTimer">
-				<input type="button" class="btn btn-dark" value="Game Start" onClick="startTimer()" >
+				<input id="sTimer" type="submit" class="btn btn-dark" value="Game Start" >
 			</form>
 			<form id="endTimer">
-				<input type="button" class="btn btn-dark" value="Stop Timer" onClick="stopTimer()" >
+				<input type="submit" class="btn btn-dark" value="Stop Timer" >
 			</form>
 		</div>
 	</div>
@@ -41,7 +41,7 @@
 		<p id="PassageArea">(ここにカウントが表示されます)</p> -->
 		<div class="col-sm-12 col-md-4">
 			<form id="send">
-				<input type="text" id="name" class="form-control" placeholder="Your HN" required>
+				<input type="text" id="name" class="form-control" placeholder="name" required>
 				<input type="text" id="msg" class="form-control" placeholder="message" required>
 				<button type="submit" class="btn btn-primary btn-default">Send!</button>
 			</form>
@@ -50,6 +50,10 @@
 				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
 				<button type="submit" class="btn btn-info">Answer!</button>
 			</form>
+			<ul id="players" style="list-style:none;">
+				<li> プレイヤー一覧 </li>
+			</ul>
+<!-- 2：ここまで -->
 			<div style="background-color:#fff;overflow-y:scroll;width:300px; height:280px">
 				<ul id="chat" style="list-style:none;"></ul>
 			</div>

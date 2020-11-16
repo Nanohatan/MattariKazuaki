@@ -26,34 +26,40 @@ http.listen(port, () => {
 	console.log('listening on *:'+port);
 });
 
+var nameList = [];
 io.sockets.on("connection",function(socket){
 	//クライアントからのチャットメッセージ受信、配信処理
     socket.on("send_msg_fromClient",function(data){
         console.log(data.msg);
+        if (!nameList.includes(data.name)){
+        	console.log("nameList add：" + data.name);
+        	nameList.unshift( data.name );
+        	io.sockets.emit("send_name_fromServer", data.name);
+        }
         io.sockets.emit("send_msg_fromServer","["+ data.name+"] "+data.msg);
     });
-
-	//お題変更
-	socket.on("send_changeOdai_fromClient",function(data){
-		odai = data.odai;
-		console.log("push odai button \nnow Odai is " + odai);
-		io.sockets.emit("send_msg_fromServer",data.odaiLog);
-	});
 
 	//回答の受信 + 送信
 	socket.on("send_userAnswer_fromClient",function(data){
 		console.log("user answer = " +data.userAnswer + "\nnow odai is " + odai);
+		if (data.userAnswer.includes("ｾｲｶｲ") ){
+			nowtime = 0;
+		}
 		io.sockets.emit("send_msg_fromServer",data.userAnswer);
 	});
 
-	//名前受信
-	socket.on('setUserName', function (userName) {
-		if(!userName) {
-			userName = "秘密(*/□＼*)";
-		}
-		userName = userName + "さん"
-		socket.userName = userName;
-		console.log("new user name : " + socket.userName);
+	//タイマーの起動
+	socket.on("startTimer_fromClient",function(data){
+		console.log("start timer!!");
+		startTimer();
+		io.sockets.emit("startTimer_fromServer","");
+	});
+
+	//タイマーの停止
+	socket.on("stopTimer_fromClient",function(data){
+		console.log("stop timer!!");
+		stopTimer();
+		io.sockets.emit("stopTimer_fromServer","");
 	});
 
 	//送信されてきた描画情報を送信元以外のクライアントに転送
@@ -66,22 +72,67 @@ io.sockets.on("connection",function(socket){
 		socket.broadcast.emit("erase_fromServer","");
 	});
 	socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
-
-	//next turnボタンを押した際にチャットにメッセージを送る
-	socket.on("game_start",function(data){
-		console.log("次の描き手は" + data.player_name + "さんです。\n お題は" + data.theme　+ "です。");
-		io.sockets.emit("send_msg_fromServer", "次の描き手は" + data.player_name + "さんです。\n お題は" + data.theme　+ "です。");
-	});
-
-	//answerボタンを押した際に正解かどうかを判定する
-	socket.on("judge",function(data){
-		if(data.answer == data.theme){
-			console.log(data.answer + ":正解！");
-			io.sockets.emit("send_msg_fromServer","正解！答えは" + data.answer + "です！");
-		}else{
-			console.log("正解:" + data.theme + "\n" + data.answer + ":不正解");
-			io.sockets.emit("send_msg_fromServer",data.answer + "は不正解！");
-		}
-	});
-	
 });
+
+
+//お題の変更関数
+let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
+var odai;
+var kakite;
+var odaiLog;
+function changeOdai(){
+	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
+	kakite = nameList[Math.floor( Math.random() * nameList.length )];
+	odaiLog = "お題「" + odai + "」，描く人"+ kakite +"さん";
+	console.log(odai);
+	console.log(nameList);
+	io.sockets.json.emit("send_odai_fromServer",{
+		htmlStile : "<h2 style=\"text-align:center\"><font size=\"7\">" + odai + "</font></td>",
+		odai : odai ,
+		name : kakite
+	});
+	io.sockets.json.emit("send_msg_fromServer",odaiLog);
+}
+
+//タイマー関数
+var nowtime = 0;
+var drowFlag = true;
+var timerText = "<h2>";
+function time(){
+		io.sockets.json.emit("send_nowtime_fromServer",{
+			htmlStile: timerText + nowtime + "秒</h2>"
+		});
+	if (nowtime > 0){
+		nowtime = nowtime - 1;
+	} else {
+		console.log("timer reset!");
+		clearInterval(timer);
+		if (drowFlag){
+			nowtime = 5;
+			timerText = "<h2 style=\"color:blue\">";
+			io.sockets.json.emit("send_odai_fromServer",{
+				htmlStile: "<h2 style=\"text-align:center\"><font size=\"7\">次のお題は…I˙꒳​˙)</font></td>" ,
+				odai : odai ,
+				name : "everyone"
+		});
+		} else {
+			nowtime = 10;
+			timerText = "<h2 style=\"color:red\">";
+			changeOdai();
+		}
+		startTimer();
+		drowFlag = !drowFlag;
+		return;
+	}
+}
+
+//タイマースタート
+function startTimer(){
+	timer = setInterval(time, 1000);
+}
+
+//タイマーストップ
+function stopTimer(){
+	clearInterval(timer);
+}
+
