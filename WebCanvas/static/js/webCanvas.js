@@ -142,9 +142,11 @@ $(function(){
 		$("#gallery").append(link.append(img.addClass("thumbnail")));
 	});
 
+	var name;
 	//チャットメッセージの送信処理
 	$("#send").submit(function(e){
 		e.preventDefault();
+		name = $("#name").val();
 		socket.json.emit("send_msg_fromClient",{
 			name: $("#name").val(),
 			msg: $("#msg").val()
@@ -170,6 +172,18 @@ $(function(){
 		$("#userAnswer").val("").focus();
 	});
 
+	$("#startTimer").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("startTimer_fromClient",{
+		});
+	});
+
+	$("#endTimer").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("stopTimer_fromClient",{
+		});
+	});
+
 	socket.on("send_msg_fromServer",function(data){
 		console.log(data);
 		//チャットを上詰めに変更
@@ -177,54 +191,37 @@ $(function(){
 		//$("#chat").append($("<li>").text(data));
 	});
 
-});
+	socket.on("send_name_fromServer",function(data){
+		$("#players").append($("<li>").text(data));
+	});	
 
-//お題変更のボタン処理
-let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
-var odai;
-function change_odai(){
-	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
-	var val = document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\">" + odai + "</font></td>" ;
 
-	var socket = io.connect();
-	socket.json.emit("send_changeOdai_fromClient",{
-		odaiLog: "お題「" + odai + "」，描く人〇〇さん",
-		odai: odai
-	});
-}
+	//表示秒数変更
+	socket.on("send_nowtime_fromServer",function(data){
+		document.getElementById("timer").innerHTML = data.htmlStile;
+	});	
 
-//タイマー
-var nowtime = 0;
-var drowFlag = true;
-var timer;
-var timerText = "<h2>";
-var time = function(){
-	var val = document.getElementById("timer").innerHTML = timerText + nowtime + "秒</h2>";
-	if (nowtime > 0){
-		nowtime = nowtime - 1;
-	} else {
-		console.log("timer reset!");
-		clearInterval(timer);
-		if (drowFlag){
-			nowtime = 5;
-			timerText = "<h2 style=\"color:blue\">";
-			var val = document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\">次のお題は…I˙꒳​˙)</font></td>" ;
+	//お題の変更
+	socket.on("send_odai_fromServer",function(data){
+		console.log("お題表示変更");
+		if (data.name == name || data.name == "everyone" ){
+			document.getElementById("odai").innerHTML = data.htmlStile;
 		} else {
-			nowtime = 10;
-			timerText = "<h2 style=\"color:red\">";
-			change_odai();
+			document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\"> 描き手は" + data.name + "さん</font></td>";
 		}
-	startTimer();
-	drowFlag = !drowFlag;
-	return;
-	}
-}
+		odai = data.odai;
+	});	
 
-function startTimer(){
-	timer = setInterval(time, 1000);
-}
+	//サーバーからタイマーを起動
+	socket.on("startTimer_fromServer",function(data){
+		console.log("スタート");
+		document.getElementById("sTimer").setAttribute("disabled", true);
+	});	
 
-function stopTimer(){
-	clearInterval(timer);
-	var val = document.getElementById("timer").innerHTML = "<h2>ストップ</td>" ;
-}
+	//サーバーからタイマー停止
+	socket.on("stopTimer_fromServer",function(data){
+		document.getElementById("sTimer").removeAttribute("disabled");
+		console.log("停止");
+	});
+
+});
