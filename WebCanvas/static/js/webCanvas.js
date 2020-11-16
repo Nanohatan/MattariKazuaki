@@ -187,12 +187,29 @@ $(function(){
 	socket.on("send_msg_fromServer",function(data){
 		console.log(data);
 		//チャットを上詰めに変更
-		$($("<li>").text(data)).prependTo("#chat");
+		document.getElementById("chat").innerHTML = "";
+		for (var msg in data){
+			$($("<li>").text(data[msg])).prependTo("#chat");
+		}
+	});
+
+	socket.on("send_odaiKakite_fromServer",function(data){
+		console.log("kokodayo!");
+		if (data.kakite == name || data.kakite == "everyone" ){
+			var odaiLog = "お題「" + data.odai + "」，描く人"+ data.kakite +"さん";
+		} else {
+			var odaiLog = "描く人"+ data.kakite +"さん";
+		}
+		$($("<li>").text(odaiLog)).prependTo("#chat");
 		//$("#chat").append($("<li>").text(data));
 	});
 
+	//プレイヤー一覧生成
 	socket.on("send_name_fromServer",function(data){
-		$("#players").append($("<li>").text(data));
+		document.getElementById("players").innerHTML = "<li> プレイヤー一覧 </li>";
+		for (var name in data){
+			$("#players").append($("<li>").text(data[name]));
+		}
 	});	
 
 
@@ -222,6 +239,12 @@ $(function(){
 	socket.on("stopTimer_fromServer",function(data){
 		document.getElementById("sTimer").removeAttribute("disabled");
 		console.log("停止");
+	});
+
+	//リロード時の処理
+	window.addEventListener('load', function(e){
+		socket.json.emit("send_msg_fromClient", {msg : "リロードしました(-人-;)"});
+		console.log('load');
 	});
 
 });

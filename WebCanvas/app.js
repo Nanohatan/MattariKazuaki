@@ -27,16 +27,19 @@ http.listen(port, () => {
 });
 
 var nameList = [];
+var msgList = [];
 io.sockets.on("connection",function(socket){
 	//クライアントからのチャットメッセージ受信、配信処理
     socket.on("send_msg_fromClient",function(data){
-        console.log(data.msg);
-        if (!nameList.includes(data.name)){
+        if (!nameList.includes(data.name) && data.name != null){
         	console.log("nameList add：" + data.name);
         	nameList.unshift( data.name );
-        	io.sockets.emit("send_name_fromServer", data.name);
+        	nameList.sort();
         }
-        io.sockets.emit("send_msg_fromServer","["+ data.name+"] "+data.msg);
+        var msg = "["+ data.name+"] "+ data.msg;
+        msgList.push(msg);
+        io.sockets.emit("send_name_fromServer", nameList);
+        io.sockets.emit("send_msg_fromServer",msgList);
     });
 
 	//回答の受信 + 送信
@@ -79,11 +82,9 @@ io.sockets.on("connection",function(socket){
 let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
 var odai;
 var kakite;
-var odaiLog;
 function changeOdai(){
 	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
 	kakite = nameList[Math.floor( Math.random() * nameList.length )];
-	odaiLog = "お題「" + odai + "」，描く人"+ kakite +"さん";
 	console.log(odai);
 	console.log(nameList);
 	io.sockets.json.emit("send_odai_fromServer",{
@@ -91,7 +92,10 @@ function changeOdai(){
 		odai : odai ,
 		name : kakite
 	});
-	io.sockets.json.emit("send_msg_fromServer",odaiLog);
+	io.sockets.json.emit("send_odaiKakite_fromServer",{
+		kakite : kakite,
+		odai : odai
+	});
 }
 
 //タイマー関数
