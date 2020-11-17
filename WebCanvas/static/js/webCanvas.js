@@ -127,7 +127,6 @@ $(function(){
 		}
 	});
 
-
 	//画像の保存、サムネイルにしてギャラリーに追加
 	$("#save").click(function(){
 		var img = $("<img>").attr({
@@ -143,20 +142,109 @@ $(function(){
 		$("#gallery").append(link.append(img.addClass("thumbnail")));
 	});
 
+	var name;
 	//チャットメッセージの送信処理
 	$("#send").submit(function(e){
 		e.preventDefault();
+		name = $("#name").val();
 		socket.json.emit("send_msg_fromClient",{
 			name: $("#name").val(),
 			msg: $("#msg").val()
 		});
 		$("#msg").val("").focus();
-
 	});
+
+	//回答(追加)
+	$("#answer").submit(function(e){
+		e.preventDefault();
+		console.log("user answer = " + $("#userAnswer").val());
+		var answer = $("#userAnswer").val();
+		if (answer.includes(odai) ){ //文字列に含まれるかどうか？
+			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ)ﾉｼ\"";
+			nowtime = 0;
+			odai = "まだ決まってないよ";
+		} else {
+			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
+		}
+		socket.json.emit("send_userAnswer_fromClient",{
+			userAnswer: answer
+		});
+		$("#userAnswer").val("").focus();
+	});
+
+	$("#startTimer").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("startTimer_fromClient",{
+		});
+	});
+
+	$("#endTimer").submit(function(e){
+		e.preventDefault();
+		socket.json.emit("stopTimer_fromClient",{
+		});
+	});
+
 	socket.on("send_msg_fromServer",function(data){
 		console.log(data);
-		$("#chat").append($("<li>").text(data));
-		
+		//チャットを上詰めに変更
+		document.getElementById("chat").innerHTML = "";
+		for (var msg in data){
+			$($("<li>").text(data[msg])).prependTo("#chat");
+		}
+	});
+
+	socket.on("send_odaiKakite_fromServer",function(data){
+		console.log("kokodayo!");
+		if (data.kakite == name || data.kakite == "everyone" ){
+			var odaiLog = "お題「" + data.odai + "」，描く人"+ data.kakite +"さん";
+		} else {
+			var odaiLog = "描く人"+ data.kakite +"さん";
+		}
+		$($("<li>").text(odaiLog)).prependTo("#chat");
+		//$("#chat").append($("<li>").text(data));
+	});
+
+	//プレイヤー一覧生成
+	socket.on("send_name_fromServer",function(data){
+		document.getElementById("players").innerHTML = "<li> プレイヤー一覧 </li>";
+		for (var name in data){
+			$("#players").append($("<li>").text(data[name]));
+		}
+	});	
+
+
+	//表示秒数変更
+	socket.on("send_nowtime_fromServer",function(data){
+		document.getElementById("timer").innerHTML = data.htmlStile;
+	});	
+
+	//お題の変更
+	socket.on("send_odai_fromServer",function(data){
+		console.log("お題表示変更");
+		if (data.name == name || data.name == "everyone" ){
+			document.getElementById("odai").innerHTML = data.htmlStile;
+		} else {
+			document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\"> 描き手は" + data.name + "さん</font></td>";
+		}
+		odai = data.odai;
+	});	
+
+	//サーバーからタイマーを起動
+	socket.on("startTimer_fromServer",function(data){
+		console.log("スタート");
+		document.getElementById("sTimer").setAttribute("disabled", true);
+	});	
+
+	//サーバーからタイマー停止
+	socket.on("stopTimer_fromServer",function(data){
+		document.getElementById("sTimer").removeAttribute("disabled");
+		console.log("停止");
+	});
+
+	//リロード時の処理
+	window.addEventListener('load', function(e){
+		socket.json.emit("send_msg_fromClient", {msg : "リロードしました(-人-;)"});
+		console.log('load');
 	});
 
 });
