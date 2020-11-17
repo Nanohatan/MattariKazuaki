@@ -165,9 +165,10 @@ $(function(){
 	一回消してみる
 	*/
 
+
 	//追加項目
 	//----------------------------------------↓こっから
-
+	
 		sessionStorage.setItem('loginUser', '');
 
         var isEnter = false;
@@ -180,7 +181,7 @@ $(function(){
         }
  
         $("form").submit(function(e) {
-            var message = $("#msg").val();
+			var message = $("#msg").val();
             var selectRoom = $("#rooms").val();
             $("#msg").val('');
             if (isEnter) {
@@ -208,4 +209,4 @@ $(function(){
 		}
 		//追加項目
 		//--------------------↑ここまで
-});
+	});

@@ -38,10 +38,10 @@ io.sockets.on("connection",function(socket){
   //追加
 
 	//クライアントからのチャットメッセージ受信、配信処理
-    socket.on("send_msg_fromClient",function(data){
-        console.log(data.msg);
-        io.sockets.emit("send_msg_fromServer","["+ data.name+"] "+data.msg);
-    });
+    //socket.on("send_msg_fromClient",function(data){
+    //    console.log(data.msg);
+    //    io.sockets.emit("send_msg_fromServer","["+ data.name+"] "+data.msg);
+    //});
 
         //送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
