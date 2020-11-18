@@ -20,10 +20,10 @@
 				<h2>0秒</td>
 			</div>
 			<form id="startTimer">
-				<input id="sTimer" type="submit" class="btn btn-dark" value="Game Start" >
+				<input id="sTimer" type="submit" class="btn btn-dark" value="Game Start" disabled = "false">
 			</form>
 			<form id="endTimer">
-				<input type="submit" class="btn btn-dark" value="Stop Timer" >
+				<input type="submit" class="btn btn-dark" value="Stop Timer" disabled = "false" >
 			</form>
 		</div>
 	</div>
@@ -33,11 +33,14 @@
 			<canvas width="640" height="360" id="mycanvas">Canvasに対応した最新のブラウザをお使いください</canvas>
 		</div>
 		<div class="col-sm-12 col-md-4">
+		<!-- 
+		多分いらない... 元のメッセージとか名前
 			<form id="send">
 				<input type="text" id="name" class="form-control" placeholder="name" required>
 				<input type="text" id="msg" class="form-control" placeholder="message" required>
 				<button type="submit" class="btn btn-primary btn-default">Send!</button>
 			</form>
+			-->
 <!-- 2：ここから追加 -->
 			<form id ="answer">
 				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
@@ -95,6 +98,25 @@
 	</div>
 	<div id="gallery"></div>
 
+	<div class="container">
+        <h1>WebSocket-Chat</h1>
+        <form class="form-inline" id ="formInline">
+            <div class="form-group">
+                <label class="roomLabel" for="rooms">部屋：</label>
+                <select class="form-control" id="rooms">
+                    <option value="room01">部屋01</option>
+                    <option value="room02">部屋02</option>
+                </select>
+                <label class="nameLabel" for="msgForm">名前：</label>
+                <input type="text" class="form-control" id="msgForm">
+            </div>
+            <!--この子いらないのでは？？
+            <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
+            -->
+        </form>
+        <div id="chatLogs"></div>
+    </div>
+    
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
