@@ -213,13 +213,13 @@ $(function(){
 		document.getElementById("sTimer").setAttribute("disabled", true);
 	});	
 
-/*
+
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
 		document.getElementById("sTimer").removeAttribute("disabled");
 		console.log("停止");
 	});
-*/
+
 
 	//ログの復元機能
 	socket.on("fix_log" , function(data){
@@ -275,7 +275,7 @@ $(function(){
                 socket.emit("client_to_server_join", {value : selectRoom});
             	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
             	socket.emit("client_to_server_addPlayer", {value : name});
-            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）
+            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ...
             }
             e.preventDefault();
         });
