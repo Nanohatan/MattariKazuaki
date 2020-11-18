@@ -138,6 +138,7 @@ const pickr = new Pickr({
 	//ここまでカラーピッカー 
 	  
 
+
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
 		//ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
@@ -169,6 +170,7 @@ const pickr = new Pickr({
 			return "B: "+value;
 		}
 	});
+
 	*/
 
 	$("#penWidth").slider({
@@ -221,6 +223,7 @@ const pickr = new Pickr({
 			startOtetukiTimer();
 		}
 		socket.emit("send_userAnswer_fromClient",{
+
 			userAnswer: answer,
 
 			answerName : u_name
@@ -329,42 +332,40 @@ const pickr = new Pickr({
 
 	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
+
 		socket.emit("startTimer_fromClient",'');
 	});
 
-	$("#stopTimerForm").submit(function(e){
+/*
+	$("#endTimer").submit(function(e){
 		e.preventDefault();
 		socket.emit("stopTimer_fromClient",'');
 	});
+*/
 
 	//お題や描きてなどのチャットメッセージ生成
-	socket.on("send_odaiMsg_fromServer",function(data){
 
-		if (data.name == u_name ){
 
+	socket.on("send_odaiKakite_fromServer",function(data){
+		if (data.kakite == name ){
 			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
 			var odaiLog = "描く人"+ data.name +"さん";
 		}
-		$($("<div>").text(odaiLog)).prependTo("#chat");
+
+		$($("<li>").text(odaiLog)).prependTo("#chat");
+
 	});
 
 	var isMaster;
 	//プレイヤー一覧生成
 	socket.on("make_playerList",function(data){
-		document.getElementById("players").innerHTML = "<div> プレイヤー一覧 </div>";
-		for (var player in data.nameDict){
-			var html = player + "　　　点数：" + data.nameDict[player][1];
-			var htmlTag = "<div>" ;
-			if (player == u_name){
-				isMaster = data.nameDict[player][0];
-				htmlTag =  "<div style=\"color:blue\">";
-				console.log("isMaster："+isMaster);
-			}
-			if (data.nameDict[player][0]){
-					html = "Master -> " + html;
-			}
-			$("#players").append($(htmlTag).text(html));
+
+
+		document.getElementById("players").innerHTML = "<li> プレイヤー一覧 </li>";
+		for (var name in data. nameDict){
+			$("#players").append($("<li>").text(data.nameDict[name]));
+
 		}
 	});	
 
@@ -393,6 +394,7 @@ const pickr = new Pickr({
 		}
 	});	
 
+/*
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
 		if (isMaster){
@@ -402,25 +404,34 @@ const pickr = new Pickr({
 		}
 	});
 
-	//マスター権限が移った際にボタンを押せるようにする
-	socket.on('master_change' , function(data) {
-		console.log("titmerFlag："+data.timerFlag);
-		if (!data.badAnswerTimer){
-			document.getElementById("startTimer").removeAttribute("disabled");
-			document.getElementById("stopTimer").setAttribute("disabled" , true);
-		} else {
-			document.getElementById("stopTimer").removeAttribute("disabled");
-			document.getElementById("startTimer").setAttribute("disabled" , true);
-		}
-	});
+*/
+
 
 	//ログの復元機能
 	socket.on("fix_log" , function(data){
     	for (var msg in data.value){
-			$(data.value[msg]).prependTo("#chat");
+			$($("<div>").text(data.value[msg])).prependTo("#chat");
 		}
 		console.log("log fix compleet!!");
 	});
+
+	//同じ名前が使われていないかどうか？
+	var isSameName;
+	socket.on("is_same_name" , function(data){
+		isSameName = data.flag;
+		console.log("koko da yo!!");//特に意味のないログ
+	});
+
+
+/*いらない子かも...
+	//リロード時の処理
+	window.addEventListener('load', function(e){
+		socket.json.emit("send_reload_fromClient", {msg : "リロードしました(-人-;)"});
+		console.log('load');
+	});
+*/
+//〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
+
 
 	//同じ名前が使われていないかどうか？＋マスターかどうか？
 	var isSameName;
@@ -441,29 +452,32 @@ const pickr = new Pickr({
         // C04. server_to_clientイベント・データを受信する
         socket.on("server_to_client", function(data){appendMsg(data.value)});
         function appendMsg(text) {
-			$(text).prependTo("#chat");
+
+
+			$($("<div>").text(text)).prependTo("#chat");
             //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
+        }
 
-		}
+		//formのタグで一括同じ処理させられていたので，特定のid名つけてあげて下さい（仮："formInline"）
 
-		const urlParams = new URLSearchParams(window.location.search);
-		const r_name = urlParams.get('roomName');
-		const u_name = urlParams.get('userName');
-		console.log(u_name,r_name);
-		socket.emit("client_to_server_join", {value : r_name , name : u_name});
-		socket.emit("client_to_server_addPlayer", {value : u_name});
-		setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ... */
-
-
-		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
         $("#formInline").submit(function(e) {
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
             $("#msgForm").val('');
 
-            message = "[" + u_name + "]: " + message;
-            // C03. client_to_serverイベント・データを送信する
-            socket.emit("client_to_server", {value : message , isMsg : true});
+
+            if (isEnter) {
+              message = "[" + name + "]: " + message;
+                // C03. client_to_serverイベント・データを送信する
+                socket.emit("client_to_server", {value : message});
+            } else {
+            	name = message;
+                socket.emit("client_to_server_join", {value : selectRoom});
+            	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
+            	socket.emit("client_to_server_addPlayer", {value : name});
+            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）
+
+            }
             e.preventDefault();
         });
 
