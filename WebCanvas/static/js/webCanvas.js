@@ -1,26 +1,15 @@
 $(function(){
-	var socket = io.connect();　// C02. ソケットへの接続
+	var socket = io.connect();
 	var canvas = document.getElementById("mycanvas");
 	if(!canvas || !canvas.getContext){
 		console.log("canvas err");
 		return false;
 	}
-
 	//メインキャンバスのコンテキスト（ペン形状を円形に設定）
 	var ctx = canvas.getContext("2d");
 	ctx.lineCap = "round";
 
 	//カラープレビューキャンバスとペンサイズプレビューキャンバス
-	const picker = Picker.create({
-		el: '#pickr',
-		theme: 'classic',
-		components: {
-		  preview: true,
-		  opacity: true,
-		  hue: true,
-		},
-	  });
-	  
 	var ctxColorPrev = document.getElementById("colorPrev").getContext("2d");
 	var ctxWidthPrev = document.getElementById("widthPrev").getContext("2d");
 	var r=0,g=0,b=0,pW=1;//R,G,B　ペンの太さ
@@ -50,7 +39,6 @@ $(function(){
 		ctx.stroke();
 
 		//ペン設定と合わせて描画した線分座標を送信
-		
 		socket.json.emit("draw_line_fromClient",{
 			sX: startX,
 			sY: startY,
@@ -94,7 +82,6 @@ $(function(){
 	/*
 	ペンの設定の反映
 	*/
-	
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
 		ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
@@ -123,7 +110,6 @@ $(function(){
 			return "B: "+value;
 		}
 	});
-	
 
 	$("#penWidth").slider({
 		formater: function(value){
@@ -141,7 +127,6 @@ $(function(){
 		}
 	});
 
-	
 	//画像の保存、サムネイルにしてギャラリーに追加
 	$("#save").click(function(){
 		var img = $("<img>").attr({
@@ -157,81 +142,20 @@ $(function(){
 		$("#gallery").append(link.append(img.addClass("thumbnail")));
 	});
 
-	var name;
-	//チャットメッセージの送信処理
-	//これはデフォルトの送信処理です。多分もういらない
-	/*
-	$("#send").submit(function(e){
-		e.preventDefault();
-		name = $("#name").val();
-		socket.json.emit("send_msg_fromClient",{
-			name: $("#name").val(),
-			msg: $("#msg").val()
-		});
-		$("#msg").val("").focus();
-	});
-	*/
-	//追加項目
-	//----------------------------------------↓こっから
-	
-	
-	sessionStorage.setItem('loginUser', '');
-
-	var isEnter = false;
-	var name = '';
-
-	// C04. server_to_clientイベント・データを受信する
-	socket.on("server_to_client", function(data){appendMsg(data.value)});
-	function appendMsg(text) {
-		$("#chat").append("<div>" + text + "</div>");
-	}
-
-	$("form").submit(function(e) {
-		var message = $("#msg").val();
-		var selectRoom = $("#rooms").val();
-		$("#msg").val('');
-		if (isEnter) {
-		  message = "[" + name + "]: " + message;
-			// C03. client_to_serverイベント・データを送信する
-			socket.emit("client_to_server", {value : message});
-		} else {
-			name = message;
-			var entryMessage = name + "さんが入室しました。";
-			socket.emit("client_to_server_join", {value : selectRoom});
-			// C05. client_to_server_broadcastイベント・データを送信する
-			socket.emit("client_to_server_broadcast", {value : entryMessage});
-			// C06. client_to_server_personalイベント・データを送信する
-			socket.emit("client_to_server_personal", {value : name});
-			changeLabel();
-		}
-		e.preventDefault();
-	});
-
-	function changeLabel() {
-		$(".nameLabel").text("メッセージ：");
-		$("#rooms").prop("disabled", true);
-		$("sendButton").text("send");
-		isEnter = true;
-	}
-
-	//追加項目
-	//--------------------↑ここまで
-
-
-	/*
+//〜〜〜〜〜〜〜〜〜〜〜↓追加項目ｱﾕﾑ
 	//回答(追加)
 	$("#answer").submit(function(e){
 		e.preventDefault();
 		console.log("user answer = " + $("#userAnswer").val());
 		var answer = $("#userAnswer").val();
 		if (answer.includes(odai) ){ //文字列に含まれるかどうか？
-			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ)ﾉｼ\"";
+			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ\)ﾉｼ\"";
 			nowtime = 0;
 			odai = "まだ決まってないよ";
 		} else {
 			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
 		}
-		socket.json.emit("send_userAnswer_fromClient",{
+		socket.emit("send_userAnswer_fromClient",{
 			userAnswer: answer
 		});
 		$("#userAnswer").val("").focus();
@@ -239,44 +163,33 @@ $(function(){
 
 	$("#startTimer").submit(function(e){
 		e.preventDefault();
-		socket.json.emit("startTimer_fromClient",{
-		});
+		socket.emit("startTimer_fromClient",'');
 	});
 
+/*
 	$("#endTimer").submit(function(e){
 		e.preventDefault();
-		socket.json.emit("stopTimer_fromClient",{
-		});
+		socket.emit("stopTimer_fromClient",'');
 	});
+*/
 
-	socket.on("send_msg_fromServer",function(data){
-		console.log(data);
-		//チャットを上詰めに変更
-		document.getElementById("chat").innerHTML = "";
-		for (var msg in data){
-			$($("<li>").text(data[msg])).prependTo("#chat");
-		}
-	});
-
+	//お題や描きてなどのチャットメッセージ生成
 	socket.on("send_odaiKakite_fromServer",function(data){
-		console.log("kokodayo!");
-		if (data.kakite == name || data.kakite == "everyone" ){
-			var odaiLog = "お題「" + data.odai + "」，描く人"+ data.kakite +"さん";
+		if (data.kakite == name ){
+			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
 			var odaiLog = "描く人"+ data.kakite +"さん";
 		}
 		$($("<li>").text(odaiLog)).prependTo("#chat");
-		//$("#chat").append($("<li>").text(data));
 	});
 
 	//プレイヤー一覧生成
-	socket.on("send_name_fromServer",function(data){
+	socket.on("make_playerList",function(data){
 		document.getElementById("players").innerHTML = "<li> プレイヤー一覧 </li>";
-		for (var name in data){
-			$("#players").append($("<li>").text(data[name]));
+		for (var name in data. nameDict){
+			$("#players").append($("<li>").text(data.nameDict[name]));
 		}
 	});	
-
 
 	//表示秒数変更
 	socket.on("send_nowtime_fromServer",function(data){
@@ -300,20 +213,92 @@ $(function(){
 		document.getElementById("sTimer").setAttribute("disabled", true);
 	});	
 
+/*
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
 		document.getElementById("sTimer").removeAttribute("disabled");
 		console.log("停止");
 	});
+*/
 
+	//ログの復元機能
+	socket.on("fix_log" , function(data){
+    	for (var msg in data.value){
+			$($("<div>").text(data.value[msg])).prependTo("#chat");
+		}
+		console.log("log fix compleet!!");
+	});
+
+	//同じ名前が使われていないかどうか？
+	var isSameName;
+	socket.on("is_same_name" , function(data){
+		isSameName = data.flag;
+		console.log("koko da yo!!");//特に意味のないログ
+	});
+
+/*いらない子かも...
 	//リロード時の処理
 	window.addEventListener('load', function(e){
-		socket.json.emit("send_msg_fromClient", {msg : "リロードしました(-人-;)"});
+		socket.json.emit("send_reload_fromClient", {msg : "リロードしました(-人-;)"});
 		console.log('load');
 	});
-	一回消してみる
-	*/
+*/
+//〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
 
 
+	//追加項目
+	//----------------------------------------↓こっからｷﾔﾏ
 	
+		sessionStorage.setItem('loginUser', '');
+
+        var isEnter = false;
+        var name = '';
+
+        // C04. server_to_clientイベント・データを受信する
+        socket.on("server_to_client", function(data){appendMsg(data.value)});
+        function appendMsg(text) {
+			$($("<div>").text(text)).prependTo("#chat");
+            //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
+        }
+
+		//formのタグで一括同じ処理させられていたので，特定のid名つけてあげて下さい（仮："formInline"）
+        $("#formInline").submit(function(e) {
+			var message = $("#msgForm").val();
+            var selectRoom = $("#rooms").val();
+            $("#msgForm").val('');
+            if (isEnter) {
+              message = "[" + name + "]: " + message;
+                // C03. client_to_serverイベント・データを送信する
+                socket.emit("client_to_server", {value : message});
+            } else {
+            	name = message;
+                socket.emit("client_to_server_join", {value : selectRoom});
+            	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
+            	socket.emit("client_to_server_addPlayer", {value : name});
+            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）
+            }
+            e.preventDefault();
+        });
+		function afterAddPlayer() {
+    		console.log(isSameName);
+    		if (isSameName){
+            	var entryMessage = name + "さんが入室しました。";
+                // C05. client_to_server_broadcastイベント・データを送信する
+                socket.emit("client_to_server_broadcast", {value : entryMessage});
+                // C06. client_to_server_personalイベント・データを送信する
+                socket.emit("client_to_server_personal", /*{value : name}*/"");
+                changeLabel();
+            } else {
+            	alert("その名前は既に使用されています|ﾉ･ω･\)ﾉ⌒\(*･-･\)");
+            }
+        }
+
+        function changeLabel() {
+            $(".nameLabel").text("メッセージ：");
+            $("#rooms").prop("disabled", true);
+            //$("sendButton").text("send"); そもそもボタン使われてなかったので...
+            isEnter = true;
+		}
+		//追加項目
+		//--------------------↑ここまでｷﾔﾏ
 	});
