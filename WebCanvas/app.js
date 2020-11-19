@@ -48,26 +48,23 @@ io.sockets.on("connection",function(socket){
 	socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
 });
 
-//グローバルは良くないですが...
-var nameDict = {};
-var msgDict = {};
+//本当はグローバル変数は良くないですが...
+var nameDict = {}; // { room1 : { name:[t,1] , name2:[t,2] } , room2 : {…} , ...}
+var msgDict = {}; // { room1 : [ msg1 , msg2 , ...] , room2 : [msgA , msgB , ...] , ...}
+var timerDict = {}; // { room1 : [ timer1 , true ] , room2 : [ timer2 , false ] , ...}
 // S04. connectionイベントを受信する
 io.sockets.on('connection', function(socket) {
     var room = '';
     var name = '';
 
-    var timerDict = {};
- 
     // roomへの入室は、「socket.join(room名)」
     socket.on('client_to_server_join', function(data) {
         room = data.value;
         socket.join(room);
         //ルーム毎にプレイヤー名とチャットログのdict作成
         if ( !(room in nameDict)){
-            nameDict[room] = [];
+            timerDict[room] = [];
             msgDict[room] = [];
-            //初めに入室した人のみスタートを押せるように
-            io.to(room).emit("stopTimer_fromServer" , '' );
             console.log('cleate room：' + room);
         }
     });
@@ -92,23 +89,40 @@ io.sockets.on('connection', function(socket) {
         //ログ修復
         io.to(id).emit('fix_log', {value :msgDict[room]});
     });
+
     //Sアユム追加 名前をチェックして，同じであればポップアップ表示＋入室拒否
     socket.on('client_to_server_addPlayer', function(data) {
         var checkName = data.value;
-        if (!nameDict[room].includes(checkName) && checkName != null){
+        //部屋を作った人だけの処理
+        if ( !(nameDict[room]) ){
             name = checkName;
-            nameDict[room].push( name );
-            console.log("nameDict key = " + room +" \nadd name：" + name);
-            nameDict[room].sort();
+            nameDict[room] = {};
+            nameDict[room][name] = [ true , 0 ] ;
+            console.log(nameDict[room]);
             io.to(room).emit('make_playerList', {nameDict : nameDict[room]});
             io.to(room).emit( "is_same_name" , {flag : true} );
-        } else {
-            io.to(room).emit( "is_same_name" , {flag : false} );
-            console.log("use same name：" + checkName);
+            io.to(room).emit("stopTimer_fromServer" , '' );
+            return;
         }
+        //2人目からは名前のチェックが入る
+        for ( var playerInfo in nameDict[room]) {
+            if (playerInfo == checkName ){
+                io.to(room).emit( "is_same_name" , {flag : false} );
+                console.log("the name already exist");
+                return;
+            }
+        }
+        //同じ名前が無い場合メンバーとして追加
+        name = checkName;
+        //nameDict[room]の中身は，[名前 , マスターか？ , 点数（仮）]
+        nameDict[room][name] = [ false , 0 ] ;
+        console.log("nameDict key = " + room +" \nadd name：" + name);
+        console.log(nameDict[room]);
+        io.to(room).emit('make_playerList', {nameDict : nameDict[room]});
+        io.to(room).emit( "is_same_name" , {flag : true} );
     });
 
-    //退室時にプレイヤー一覧から削除，リストから削除処理追加
+    //退室時にルーム初期化
     // S09. dicconnectイベントを受信し、退出メッセージを送信する
     socket.on('disconnect', function() {
         if (name == '') {
@@ -116,17 +130,29 @@ io.sockets.on('connection', function(socket) {
         } else {
             var endMessage = name + "さんが退出しました。"
             msgDict[room].push(endMessage);
-            const index = nameDict[room].findIndex((removeName) => removeName === name);
-            nameDict[room].splice( index, 1);
-            if (nameDict[room].length == 0 ){
-                delete nameDict[room];
-                delete msgDict[room];
-                stopTimer();
-                delete timerDict[room];
-                console.log("delete room：" + room);
-                return;
+            //マスターが抜けるかどうか？
+            if (nameDict[room][name][0]){
+                delete nameDict[room][name];
+                //ルームから人がいなくなったら初期化
+                var nameKeyList = Object.keys(nameDict[room]);
+                if ( nameKeyList.length == 0 ){
+                    delete nameDict[room];
+                    delete msgDict[room];
+                    stopTimer();
+                    delete timerDict[room];
+                    console.log("delete room：" + room);
+                    return;
+                }
+                //ランダムに選んだ人にマスター権限付与
+                var newMaster = nameKeyList [Math.floor( Math.random() * nameKeyList.length )];
+                nameDict[room][newMaster][0] = true;
+                io.to(room).emit('master_change' , { timer : timerDict[room][1] });//オバーフロー直った？
+                io.to(room).emit('server_to_client' , {value : "部屋主が" + newMaster +"さんに変わりました。" })
+            } else {
+                delete nameDict[room][name];
             }
-            console.log("name remove：" + name + "\nnow nameDict：" + nameDict[room] );
+            console.log("name remove：" + name );
+            console.log(nameDict[room]);
             socket.broadcast.to(room).emit('make_playerList', {nameDict : nameDict[room]});
             io.to(room).emit('server_to_client', {value : endMessage});
         }
@@ -148,21 +174,20 @@ io.sockets.on('connection', function(socket) {
 		io.to(room).emit("startTimer_fromServer","");
 	});
 
-/*
 	//タイマーの停止
 	socket.on("stopTimer_fromClient",function(data){
 		stopTimer();
 		io.to(room).emit("stopTimer_fromServer","");
 	});
-*/
 
     //お題の変更関数
     let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
     var odai;
     var kakite;
     function changeOdai(){
+        var nameKeyList = Object.keys(nameDict[room]);
+    	kakite = nameKeyList[Math.floor( Math.random() * nameKeyList.length)];
     	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
-    	kakite = nameDict[room][Math.floor( Math.random() * nameDict[room].length )];
     	console.log(odai);
     	console.log(nameDict);
     	io.to(room).emit("send_odai_fromServer",{
@@ -171,7 +196,7 @@ io.sockets.on('connection', function(socket) {
     		name : kakite
     	});
     	io.to(room).emit("send_odaiKakite_fromServer",{
-    		kakite : kakite,
+    		name : kakite,
     		odai : odai
     	});
     }
@@ -188,7 +213,6 @@ io.sockets.on('connection', function(socket) {
     		nowtime = nowtime - 1;
     	} else {
     		console.log("timer reset!");
-    		clearInterval(timerDict[room]);
     		if (drowFlag){
     			nowtime = 5;
     			timerText = "<h2 style=\"color:blue\">";
@@ -202,23 +226,21 @@ io.sockets.on('connection', function(socket) {
     			timerText = "<h2 style=\"color:red\">";
     			changeOdai();
     		}
-    		startTimer();
     		drowFlag = !drowFlag;
-    		return;
     	}
     }
 
     //タイマースタート
     function startTimer(){
-    	timer = setInterval(time, 1000);
-    	console.log("start timer!!");
-    	timerDict[room] = timer;
+    	timerDict[room] = [ setInterval(time, 1000) , true ] ;
+    	console.log("timer start：" + room);
     }
 
     //タイマーストップ
     function stopTimer(){
-    	clearInterval(timerDict[room]);
-    	console.log("stop timer!!");
+    	clearInterval(timerDict[room][0]);
+        timerDict[room][1] = false;
+    	console.log("timer stop：" + room);
     }
 
 });

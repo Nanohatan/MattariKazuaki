@@ -161,33 +161,42 @@ $(function(){
 		$("#userAnswer").val("").focus();
 	});
 
-	$("#startTimer").submit(function(e){
+	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
 		socket.emit("startTimer_fromClient",'');
 	});
 
-/*
-	$("#endTimer").submit(function(e){
+	$("#stopTimerForm").submit(function(e){
 		e.preventDefault();
 		socket.emit("stopTimer_fromClient",'');
 	});
-*/
 
 	//お題や描きてなどのチャットメッセージ生成
 	socket.on("send_odaiKakite_fromServer",function(data){
-		if (data.kakite == name ){
+		if (data.name == name ){
 			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
-			var odaiLog = "描く人"+ data.kakite +"さん";
+			var odaiLog = "描く人"+ data.name +"さん";
 		}
 		$($("<li>").text(odaiLog)).prependTo("#chat");
 	});
 
+	var isMaster;
 	//プレイヤー一覧生成
 	socket.on("make_playerList",function(data){
-		document.getElementById("players").innerHTML = "<li> プレイヤー一覧 </li>";
-		for (var name in data. nameDict){
-			$("#players").append($("<li>").text(data.nameDict[name]));
+		document.getElementById("players").innerHTML = "<div> プレイヤー一覧 </div>";
+		for (var player in data.nameDict){
+			var html = player + "　　　点数：" + data.nameDict[player][1];
+			var htmlTag = "<div>" ;
+			if (player == name){
+				isMaster = data.nameDict[player][0];
+				htmlTag =  "<div style=\"color:blue\">";
+				console.log("isMaster："+isMaster);
+			}
+			if (data.nameDict[player][0]){
+					html = "Master -> " + html;
+			}
+			$("#players").append($(htmlTag).text(html));
 		}
 	});	
 
@@ -209,17 +218,33 @@ $(function(){
 
 	//サーバーからタイマーを起動
 	socket.on("startTimer_fromServer",function(data){
-		console.log("スタート");
-		document.getElementById("sTimer").setAttribute("disabled", true);
+		if (isMaster){
+			document.getElementById("stopTimer").removeAttribute("disabled");
+			document.getElementById("startTimer").setAttribute("disabled" , true);
+			console.log("スタート");
+		}
 	});	
-
 
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
-		document.getElementById("sTimer").removeAttribute("disabled");
-		console.log("停止");
+		if (isMaster){
+			document.getElementById("startTimer").removeAttribute("disabled");
+			document.getElementById("stopTimer").setAttribute("disabled" , true);
+			console.log("停止");
+		}
 	});
 
+	//マスター権限が移った際にボタンを押せるようにする
+	socket.on('master_change' , function(data) {
+		console.log("titmerFlag："+data.timerFlag);
+		if (!data.timer){
+			document.getElementById("startTimer").removeAttribute("disabled");
+			document.getElementById("stopTimer").setAttribute("disabled" , true);
+		} else {
+			document.getElementById("stopTimer").removeAttribute("disabled");
+			document.getElementById("startTimer").setAttribute("disabled" , true);
+		}
+	});
 
 	//ログの復元機能
 	socket.on("fix_log" , function(data){
@@ -229,7 +254,7 @@ $(function(){
 		console.log("log fix compleet!!");
 	});
 
-	//同じ名前が使われていないかどうか？
+	//同じ名前が使われていないかどうか？＋マスターかどうか？
 	var isSameName;
 	socket.on("is_same_name" , function(data){
 		isSameName = data.flag;
@@ -272,7 +297,7 @@ $(function(){
                 socket.emit("client_to_server", {value : message});
             } else {
             	name = message;
-                socket.emit("client_to_server_join", {value : selectRoom});
+                socket.emit("client_to_server_join", {value : selectRoom , name : name});
             	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
             	socket.emit("client_to_server_addPlayer", {value : name});
             	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ...
