@@ -168,7 +168,7 @@ io.sockets.on('connection', function(socket) {
 
 	//回答の受信 + 送信
 	socket.on("send_userAnswer_fromClient",function(data){
-	    var answer = data.userAnswer;
+	    var answer = "<div>" +  data.userAnswer + "</div>";
 		console.log("user answer = " + answer + "\nnow odai is " + odai);
 		if (answer.includes("ｾｲｶｲ") ){
 			nowtime = 0;
