@@ -4,7 +4,6 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
 
-
 app.use(express.static('static'));
 app.set('views', './views');
 app.set('view engine', 'pug');
@@ -56,7 +55,6 @@ var timerDict = {}; // { room1 : [ timer1 , true ] , room2 : [ timer2 , false ] 
 io.sockets.on('connection', function(socket) {
     var room = '';
     var name = '';
-
     // roomへの入室は、「socket.join(room名)」
     socket.on('client_to_server_join', function(data) {
         room = data.value;
@@ -72,14 +70,24 @@ io.sockets.on('connection', function(socket) {
     // S05. client_to_serverイベント・データを受信する
     socket.on('client_to_server', function(data) {
         // S06. server_to_clientイベント・データを送信する
-        msgDict[room].push(data.value);
-        io.to(room).emit('server_to_client', {value : data.value});
+        var text =  "<div>" + data.value + "</div>" ;
+        msgDict[room].push(text);
+        console.log(msgDict[room]);
+        io.to(room).emit('server_to_client', {value : text });
+    });
+
+    // スタンプの処理
+    socket.on('stamp_from_client', function(data) {
+        msgDict[room].push(data.stampNum);
+        var hoge = "";
+        io.to(room).emit('server_to_client_stamp', {value : hoge/*"スタンプ準備中..."data.stampNum*/});
     });
 
     // S07. client_to_server_broadcastイベント・データを受信し、送信元以外に送信する
-    socket.on('client_to_server_broadcast', function(data) {
-        msgDict[room].push(data.value);
-        socket.broadcast.to(room).emit('server_to_client', {value : data.value});
+    socket.on( 'client_to_server_broadcast' , function(data) {
+        var text = "<div>" + data.value + "</div>" ;
+        msgDict[room].push(text);
+        socket.broadcast.to(room).emit('server_to_client', {value : text});
     });
     // S08. client_to_server_personalイベント・データを受信し、送信元のみに送信する
     socket.on('client_to_server_personal', function(data) {
@@ -164,7 +172,9 @@ io.sockets.on('connection', function(socket) {
 		console.log("user answer = " + answer + "\nnow odai is " + odai);
 		if (answer.includes("ｾｲｶｲ") ){
 			nowtime = 0;
+			nameDict[room][data.answerName][1] += 1;
 		}
+		io.to(room).emit('make_playerList', {nameDict : nameDict[room]});
 		io.to(room).emit('server_to_client', { value : answer });
 	});
 
@@ -195,7 +205,7 @@ io.sockets.on('connection', function(socket) {
     		odai : odai ,
     		name : kakite
     	});
-    	io.to(room).emit("send_odaiKakite_fromServer",{
+    	io.to(room).emit("send_odaiMsg_fromServer",{
     		name : kakite,
     		odai : odai
     	});

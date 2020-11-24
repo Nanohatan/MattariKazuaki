@@ -156,9 +156,21 @@ $(function(){
 			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
 		}
 		socket.emit("send_userAnswer_fromClient",{
-			userAnswer: answer
+			userAnswer: answer,
+			answerName : name
 		});
 		$("#userAnswer").val("").focus();
+	});
+
+	$("#stampButton").submit(function(e){
+		e.preventDefault();
+		//スタンプをナンバーで管理？
+		socket.emit("stamp_from_client", {stampNum : "" });
+	});
+
+	//スタンプ仮
+	socket.on("server_to_client_stamp", function(data){
+		$("<tr><td valign=\"top\"> [" + name + "]: <img src=\"./img/coffee.jpg\" alt=\"\" ></img></td></tr>").prependTo("#chat");
 	});
 
 	$("#startTimerForm").submit(function(e){
@@ -172,13 +184,13 @@ $(function(){
 	});
 
 	//お題や描きてなどのチャットメッセージ生成
-	socket.on("send_odaiKakite_fromServer",function(data){
+	socket.on("send_odaiMsg_fromServer",function(data){
 		if (data.name == name ){
 			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
 			var odaiLog = "描く人"+ data.name +"さん";
 		}
-		$($("<li>").text(odaiLog)).prependTo("#chat");
+		$($("<div>").text(odaiLog)).prependTo("#chat");
 	});
 
 	var isMaster;
@@ -249,7 +261,7 @@ $(function(){
 	//ログの復元機能
 	socket.on("fix_log" , function(data){
     	for (var msg in data.value){
-			$($("<div>").text(data.value[msg])).prependTo("#chat");
+			$(data.value[msg]).prependTo("#chat");
 		}
 		console.log("log fix compleet!!");
 	});
@@ -261,13 +273,6 @@ $(function(){
 		console.log("koko da yo!!");//特に意味のないログ
 	});
 
-/*いらない子かも...
-	//リロード時の処理
-	window.addEventListener('load', function(e){
-		socket.json.emit("send_reload_fromClient", {msg : "リロードしました(-人-;)"});
-		console.log('load');
-	});
-*/
 //〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
 
 
@@ -282,11 +287,11 @@ $(function(){
         // C04. server_to_clientイベント・データを受信する
         socket.on("server_to_client", function(data){appendMsg(data.value)});
         function appendMsg(text) {
-			$($("<div>").text(text)).prependTo("#chat");
+			$(text).prependTo("#chat");
             //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
         }
 
-		//formのタグで一括同じ処理させられていたので，特定のid名つけてあげて下さい（仮："formInline"）
+		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
         $("#formInline").submit(function(e) {
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
