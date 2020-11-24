@@ -1,14 +1,44 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-<meta charset="utf-8" />
-</head>
-<body>
+<html lang="ja">
+    <head>
+        <title>Page Title</title>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+
+
+    <div class="container">
+        <h1>WebSocket-Chat</h1>
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="roomLabel" for="rooms">部屋：</label>
+                <select class="form-control" id="rooms">
+                    <option value="room01">部屋01</option>
+                    <option value="room02">部屋02</option>
+                </select>
+                <label class="nameLabel" for="msgForm">名前：</label>
+                <input type="text" class="form-control" id="msgForm">
+            </div>
+            <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
+        </form>
+        <div id="chatLogs"></div>
+    </div>
+    
 
 <h1>This is a Heading</h1>
 <p>This is a paragraph.</p>
 <a href="/canv_only">キャンバスオンリー</a>
 <a href="/canv_and_chat">キャンバスとチャット</a>
-</body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-slider.js"></script>
+    <script type="text/javascript" src="./socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="./js/webCanvas.js"></script>
+    <script type="text/javascript" src="./js/webCanvas.js"></script>
+    
+
+    </body>
 </html>
