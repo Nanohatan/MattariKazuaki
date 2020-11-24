@@ -1,11 +1,10 @@
 $(function(){
-	var socket = io.connect();　// C02. ソケットへの接続
+	var socket = io.connect();
 	var canvas = document.getElementById("mycanvas");
 	if(!canvas || !canvas.getContext){
 		console.log("canvas err");
 		return false;
 	}
-
 	//メインキャンバスのコンテキスト（ペン形状を円形に設定）
 	var ctx = canvas.getContext("2d");
 	ctx.lineCap = "round";
@@ -40,7 +39,6 @@ $(function(){
 		ctx.stroke();
 
 		//ペン設定と合わせて描画した線分座標を送信
-		
 		socket.json.emit("draw_line_fromClient",{
 			sX: startX,
 			sY: startY,
@@ -129,7 +127,6 @@ $(function(){
 		}
 	});
 
-	
 	//画像の保存、サムネイルにしてギャラリーに追加
 	$("#save").click(function(){
 		var img = $("<img>").attr({
@@ -145,78 +142,75 @@ $(function(){
 		$("#gallery").append(link.append(img.addClass("thumbnail")));
 	});
 
-	var name;
-	//チャットメッセージの送信処理
-	//これはデフォルトの送信処理です。多分もういらない
-	/*
-	$("#send").submit(function(e){
-		e.preventDefault();
-		name = $("#name").val();
-		socket.json.emit("send_msg_fromClient",{
-			name: $("#name").val(),
-			msg: $("#msg").val()
-		});
-		$("#msg").val("").focus();
-	});
-
+//〜〜〜〜〜〜〜〜〜〜〜↓追加項目ｱﾕﾑ
 	//回答(追加)
 	$("#answer").submit(function(e){
 		e.preventDefault();
 		console.log("user answer = " + $("#userAnswer").val());
 		var answer = $("#userAnswer").val();
 		if (answer.includes(odai) ){ //文字列に含まれるかどうか？
-			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ)ﾉｼ\"";
+			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ\)ﾉｼ\"";
 			nowtime = 0;
 			odai = "まだ決まってないよ";
 		} else {
 			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
 		}
-		socket.json.emit("send_userAnswer_fromClient",{
-			userAnswer: answer
+		socket.emit("send_userAnswer_fromClient",{
+			userAnswer: answer,
+			answerName : name
 		});
 		$("#userAnswer").val("").focus();
 	});
 
-	$("#startTimer").submit(function(e){
+	$("#stampButton").submit(function(e){
 		e.preventDefault();
-		socket.json.emit("startTimer_fromClient",{
-		});
+		//スタンプをナンバーで管理？
+		socket.emit("stamp_from_client", {stampNum : "" });
 	});
 
-	$("#endTimer").submit(function(e){
+	//スタンプ仮
+	socket.on("server_to_client_stamp", function(data){
+		$("<tr><td valign=\"top\"> [" + name + "]: <img src=\"./img/coffee.jpg\" alt=\"\" ></img></td></tr>").prependTo("#chat");
+	});
+
+	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
-		socket.json.emit("stopTimer_fromClient",{
-		});
+		socket.emit("startTimer_fromClient",'');
 	});
 
-	socket.on("send_msg_fromServer",function(data){
-		console.log(data);
-		//チャットを上詰めに変更
-		document.getElementById("chat").innerHTML = "";
-		for (var msg in data){
-			$($("<li>").text(data[msg])).prependTo("#chat");
-		}
+	$("#stopTimerForm").submit(function(e){
+		e.preventDefault();
+		socket.emit("stopTimer_fromClient",'');
 	});
 
-	socket.on("send_odaiKakite_fromServer",function(data){
-		console.log("kokodayo!");
-		if (data.kakite == name || data.kakite == "everyone" ){
-			var odaiLog = "お題「" + data.odai + "」，描く人"+ data.kakite +"さん";
+	//お題や描きてなどのチャットメッセージ生成
+	socket.on("send_odaiMsg_fromServer",function(data){
+		if (data.name == name ){
+			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
-			var odaiLog = "描く人"+ data.kakite +"さん";
+			var odaiLog = "描く人"+ data.name +"さん";
 		}
-		$($("<li>").text(odaiLog)).prependTo("#chat");
-		//$("#chat").append($("<li>").text(data));
+		$($("<div>").text(odaiLog)).prependTo("#chat");
 	});
 
+	var isMaster;
 	//プレイヤー一覧生成
-	socket.on("send_name_fromServer",function(data){
-		document.getElementById("players").innerHTML = "<li> プレイヤー一覧 </li>";
-		for (var name in data){
-			$("#players").append($("<li>").text(data[name]));
+	socket.on("make_playerList",function(data){
+		document.getElementById("players").innerHTML = "<div> プレイヤー一覧 </div>";
+		for (var player in data.nameDict){
+			var html = player + "　　　点数：" + data.nameDict[player][1];
+			var htmlTag = "<div>" ;
+			if (player == name){
+				isMaster = data.nameDict[player][0];
+				htmlTag =  "<div style=\"color:blue\">";
+				console.log("isMaster："+isMaster);
+			}
+			if (data.nameDict[player][0]){
+					html = "Master -> " + html;
+			}
+			$("#players").append($(htmlTag).text(html));
 		}
 	});	
-
 
 	//表示秒数変更
 	socket.on("send_nowtime_fromServer",function(data){
@@ -236,66 +230,105 @@ $(function(){
 
 	//サーバーからタイマーを起動
 	socket.on("startTimer_fromServer",function(data){
-		console.log("スタート");
-		document.getElementById("sTimer").setAttribute("disabled", true);
+		if (isMaster){
+			document.getElementById("stopTimer").removeAttribute("disabled");
+			document.getElementById("startTimer").setAttribute("disabled" , true);
+			console.log("スタート");
+		}
 	});	
 
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
-		document.getElementById("sTimer").removeAttribute("disabled");
-		console.log("停止");
+		if (isMaster){
+			document.getElementById("startTimer").removeAttribute("disabled");
+			document.getElementById("stopTimer").setAttribute("disabled" , true);
+			console.log("停止");
+		}
 	});
 
-	//リロード時の処理
-	window.addEventListener('load', function(e){
-		socket.json.emit("send_msg_fromClient", {msg : "リロードしました(-人-;)"});
-		console.log('load');
+	//マスター権限が移った際にボタンを押せるようにする
+	socket.on('master_change' , function(data) {
+		console.log("titmerFlag："+data.timerFlag);
+		if (!data.timer){
+			document.getElementById("startTimer").removeAttribute("disabled");
+			document.getElementById("stopTimer").setAttribute("disabled" , true);
+		} else {
+			document.getElementById("stopTimer").removeAttribute("disabled");
+			document.getElementById("startTimer").setAttribute("disabled" , true);
+		}
 	});
-	一回消してみる
-	*/
+
+	//ログの復元機能
+	socket.on("fix_log" , function(data){
+    	for (var msg in data.value){
+			$(data.value[msg]).prependTo("#chat");
+		}
+		console.log("log fix compleet!!");
+	});
+
+	//同じ名前が使われていないかどうか？＋マスターかどうか？
+	var isSameName;
+	socket.on("is_same_name" , function(data){
+		isSameName = data.flag;
+		console.log("koko da yo!!");//特に意味のないログ
+	});
+
+//〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
 
 
 	//追加項目
-	//----------------------------------------↓こっから
+	//----------------------------------------↓こっからｷﾔﾏ
 	
 		sessionStorage.setItem('loginUser', '');
 
         var isEnter = false;
         var name = '';
- 
+
         // C04. server_to_clientイベント・データを受信する
         socket.on("server_to_client", function(data){appendMsg(data.value)});
         function appendMsg(text) {
-            $("#chat").append("<div>" + text + "</div>");
+			$(text).prependTo("#chat");
+            //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
         }
- 
-        $("form").submit(function(e) {
-			var message = $("#msg").val();
+
+		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
+        $("#formInline").submit(function(e) {
+			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
-            $("#msg").val('');
+            $("#msgForm").val('');
             if (isEnter) {
               message = "[" + name + "]: " + message;
                 // C03. client_to_serverイベント・データを送信する
                 socket.emit("client_to_server", {value : message});
             } else {
-                name = message;
-                var entryMessage = name + "さんが入室しました。";
-                socket.emit("client_to_server_join", {value : selectRoom});
-                // C05. client_to_server_broadcastイベント・データを送信する
-                socket.emit("client_to_server_broadcast", {value : entryMessage});
-                // C06. client_to_server_personalイベント・データを送信する
-                socket.emit("client_to_server_personal", {value : name});
-                changeLabel();
+            	name = message;
+                socket.emit("client_to_server_join", {value : selectRoom , name : name});
+            	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
+            	socket.emit("client_to_server_addPlayer", {value : name});
+            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ...
             }
             e.preventDefault();
         });
- 
+		function afterAddPlayer() {
+    		console.log(isSameName);
+    		if (isSameName){
+            	var entryMessage = name + "さんが入室しました。";
+                // C05. client_to_server_broadcastイベント・データを送信する
+                socket.emit("client_to_server_broadcast", {value : entryMessage});
+                // C06. client_to_server_personalイベント・データを送信する
+                socket.emit("client_to_server_personal", /*{value : name}*/"");
+                changeLabel();
+            } else {
+            	alert("その名前は既に使用されています|ﾉ･ω･\)ﾉ⌒\(*･-･\)");
+            }
+        }
+
         function changeLabel() {
             $(".nameLabel").text("メッセージ：");
             $("#rooms").prop("disabled", true);
-            $("sendButton").text("send");
+            //$("sendButton").text("send"); そもそもボタン使われてなかったので...
             isEnter = true;
 		}
 		//追加項目
-		//--------------------↑ここまで
+		//--------------------↑ここまでｷﾔﾏ
 	});
