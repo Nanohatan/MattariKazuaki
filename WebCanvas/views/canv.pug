@@ -1,0 +1,55 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title webCanvas
+  link(rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
+  link(rel='stylesheet' type='text/css' href='./css/slider.css')
+  link(rel='stylesheet' type='text/css' href='./css/webCanvasStyle.css')
+  h1=roomName
+.row
+  .col-sm-12.col-md-8
+    canvas#mycanvas(width='640' height='360') Canvas&#x306B;&#x5BFE;&#x5FDC;&#x3057;&#x305F;&#x6700;&#x65B0;&#x306E;&#x30D6;&#x30E9;&#x30A6;&#x30B6;&#x3092;&#x304A;&#x4F7F;&#x3044;&#x304F;&#x3060;&#x3055;&#x3044;
+  .col-sm-12.col-md-4
+    form#send
+      input#name.form-control(type='text' placeholder='Your HN' value=userName required='')
+      input#msg.form-control(type='text' placeholder='message' required='')
+      button.btn.btn-primary.btn-default(type='submit') Send!
+    div(style='background-color:#fff;overflow-y:scroll;width:300px; height:280px')
+      ul#chat(style='list-style:none;')
+.row
+  .col-sm-12.col-md-9
+    .col-sm-3.col-md-1
+      canvas#colorPrev.prev(width='50' height='50')
+    .col-sm-9.col-md-5
+      ul(style='list-style:none;')
+        li
+          label
+            | R:&#x9;
+            input#colorR.sliders(type='text' data-slider-max='255' data-slider-value='0')
+        li
+          label
+            | G:&#x9;
+            input#colorG.sliders(type='text' data-slider-max='255' data-slider-value='0')
+        li
+          label
+            | B:&#x9;
+            input#colorB.sliders(type='text' data-slider-max='255' data-slider-value='0')
+    .col-sm-3.col-md-1
+      canvas#widthPrev.prev(width='50' height='50')
+    .col-sm-9.col-md-5
+      label
+        | Pen size:&#x9;
+        input#penWidth.sliders(type='text' data-slider-max='25' data-slider-min='1' data-slider-value='1')
+div
+  .col-md-6
+    button#erase.btn.btn-primary.btn-lg(type='button') &#x6D88;&#x53BB;
+  .col-md-6
+    button#save.btn.btn-lg(type='button') &#x4FDD;&#x5B58;
+#gallery
+script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js')
+link(rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css')
+script(src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js')
+script(src='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js')
+script(type='text/javascript' src='./js/bootstrap-slider.js')
+script(type='text/javascript' src='./socket.io/socket.io.js')
+script(type='text/javascript' src='./js/webCanvas.js')
