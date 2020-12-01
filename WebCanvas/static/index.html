@@ -6,9 +6,15 @@
 </head>
 <body>
 
-<h1>This is a Heading</h1>
+<h1>Chat Room</h1>
 <p>This is a paragraph.</p>
 <a href="/canv_only">キャンバスオンリー</a>
 <a href="/canv_and_chat">キャンバスとチャット</a>
+
+<form action="/createRoom" method="get" onsubmit="return validateForm()">
+    <input type="text" placeholder="room name" name="roomName"><br><br>
+    <input type="text" placeholder="your name" name="userName"><br><br>
+    <input type="submit" value="Submit">
+</form>
 </body>
 </html>

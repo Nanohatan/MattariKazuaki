@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
+const url = require('url');
 
 
 app.use(express.static('static'));
@@ -10,16 +11,21 @@ app.set('views', './views');
 app.set('view engine', 'pug');
 
 app.get('/', (req, res) => {
-	res.sendfile('static/index.html');
+	res.sendFile(__dirname+'/static/index.html');
     //res.render('index');
 });
 
 app.get('/canv_and_chat', (req, res) => {
-    res.sendfile('static/webCanvas.html');
+    res.sendFile(__dirname+'/static/webCanvas.html');
 });
 
 app.get('/canv_only', (req, res) => {
-    res.sendfile('static/canv.html');
+    res.sendFile(__dirname+'/static/canv.html');
+});
+
+app.get('/createRoom', (req, res) => {
+	const queryObject = url.parse(req.url,true).query
+	res.render('index',{roomName:queryObject.roomName,userName:queryObject.userName})
 });
 
 http.listen(port, () => {
