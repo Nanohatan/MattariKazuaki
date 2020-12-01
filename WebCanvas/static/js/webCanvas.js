@@ -137,6 +137,7 @@ const pickr = new Pickr({
 
 	//ここまでカラーピッカー 
 	  
+
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
 		//ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";

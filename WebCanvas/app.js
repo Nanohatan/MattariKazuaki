@@ -43,7 +43,7 @@ http.listen(port, () => {
   });
   //追加
 
-	//送信されてきた描画情報を送信元以外のクライアントに転送
+        //送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
 		socket.broadcast.to(room).emit("draw_line_fromServer",data);
 	});
