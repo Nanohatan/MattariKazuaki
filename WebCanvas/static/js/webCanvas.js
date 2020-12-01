@@ -11,6 +11,16 @@ $(function(){
 	ctx.lineCap = "round";
 
 	//カラープレビューキャンバスとペンサイズプレビューキャンバス
+	const picker = Picker.create({
+		el: '#pickr',
+		theme: 'classic',
+		components: {
+		  preview: true,
+		  opacity: true,
+		  hue: true,
+		},
+	  });
+	  
 	var ctxColorPrev = document.getElementById("colorPrev").getContext("2d");
 	var ctxWidthPrev = document.getElementById("widthPrev").getContext("2d");
 	var r=0,g=0,b=0,pW=1;//R,G,B　ペンの太さ
@@ -84,6 +94,7 @@ $(function(){
 	/*
 	ペンの設定の反映
 	*/
+	
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
 		ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
@@ -112,6 +123,7 @@ $(function(){
 			return "B: "+value;
 		}
 	});
+	
 
 	$("#penWidth").slider({
 		formater: function(value){
@@ -158,7 +170,55 @@ $(function(){
 		});
 		$("#msg").val("").focus();
 	});
+	*/
+	//追加項目
+	//----------------------------------------↓こっから
+	
+	
+	sessionStorage.setItem('loginUser', '');
 
+	var isEnter = false;
+	var name = '';
+
+	// C04. server_to_clientイベント・データを受信する
+	socket.on("server_to_client", function(data){appendMsg(data.value)});
+	function appendMsg(text) {
+		$("#chat").append("<div>" + text + "</div>");
+	}
+
+	$("form").submit(function(e) {
+		var message = $("#msg").val();
+		var selectRoom = $("#rooms").val();
+		$("#msg").val('');
+		if (isEnter) {
+		  message = "[" + name + "]: " + message;
+			// C03. client_to_serverイベント・データを送信する
+			socket.emit("client_to_server", {value : message});
+		} else {
+			name = message;
+			var entryMessage = name + "さんが入室しました。";
+			socket.emit("client_to_server_join", {value : selectRoom});
+			// C05. client_to_server_broadcastイベント・データを送信する
+			socket.emit("client_to_server_broadcast", {value : entryMessage});
+			// C06. client_to_server_personalイベント・データを送信する
+			socket.emit("client_to_server_personal", {value : name});
+			changeLabel();
+		}
+		e.preventDefault();
+	});
+
+	function changeLabel() {
+		$(".nameLabel").text("メッセージ：");
+		$("#rooms").prop("disabled", true);
+		$("sendButton").text("send");
+		isEnter = true;
+	}
+
+	//追加項目
+	//--------------------↑ここまで
+
+
+	/*
 	//回答(追加)
 	$("#answer").submit(function(e){
 		e.preventDefault();
@@ -255,47 +315,5 @@ $(function(){
 	*/
 
 
-	//追加項目
-	//----------------------------------------↓こっから
 	
-		sessionStorage.setItem('loginUser', '');
-
-        var isEnter = false;
-        var name = '';
- 
-        // C04. server_to_clientイベント・データを受信する
-        socket.on("server_to_client", function(data){appendMsg(data.value)});
-        function appendMsg(text) {
-            $("#chat").append("<div>" + text + "</div>");
-        }
- 
-        $("form").submit(function(e) {
-			var message = $("#msg").val();
-            var selectRoom = $("#rooms").val();
-            $("#msg").val('');
-            if (isEnter) {
-              message = "[" + name + "]: " + message;
-                // C03. client_to_serverイベント・データを送信する
-                socket.emit("client_to_server", {value : message});
-            } else {
-                name = message;
-                var entryMessage = name + "さんが入室しました。";
-                socket.emit("client_to_server_join", {value : selectRoom});
-                // C05. client_to_server_broadcastイベント・データを送信する
-                socket.emit("client_to_server_broadcast", {value : entryMessage});
-                // C06. client_to_server_personalイベント・データを送信する
-                socket.emit("client_to_server_personal", {value : name});
-                changeLabel();
-            }
-            e.preventDefault();
-        });
- 
-        function changeLabel() {
-            $(".nameLabel").text("メッセージ：");
-            $("#rooms").prop("disabled", true);
-            $("sendButton").text("send");
-            isEnter = true;
-		}
-		//追加項目
-		//--------------------↑ここまで
 	});
