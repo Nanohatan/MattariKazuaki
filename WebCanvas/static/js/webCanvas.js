@@ -154,6 +154,10 @@ $(function(){
 			odai = "まだ決まってないよ";
 		} else {
 			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
+			//ここでお手付きタイマースタート
+			//ユーザー一人一人に対しての処理なので，emitいらないかも
+			document.getElementById("userAnswer").setAttribute("disabled" , true);
+			startOtetukiTimer();
 		}
 		socket.emit("send_userAnswer_fromClient",{
 			userAnswer: answer,
@@ -161,6 +165,27 @@ $(function(){
 		});
 		$("#userAnswer").val("").focus();
 	});
+
+	//お手付きの処理
+    var nowtime = 10;
+    var timerText = "<h2>";
+    var timer;
+    function time(){
+    	document.getElementById("otetukiTimer").innerHTML = "<div>お手付き！" + nowtime + "</div>";
+    	if (nowtime > 0){
+    		nowtime = nowtime - 1;
+    	} else {
+    		nowtime = 10 ;
+    		clearInterval(timer)
+    		document.getElementById("userAnswer").removeAttribute("disabled");
+    		document.getElementById("otetukiTimer").innerHTML = "<div>" + 'お手付きタイマー' + "</div>";
+    	}
+    }
+
+    //お手付きタイマースタート
+    function startOtetukiTimer(){
+    	timer = setInterval(time, 1000);
+    }
 
 	//スタンプ仮
 	$("#stampButton").submit(function(e){

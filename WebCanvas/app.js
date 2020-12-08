@@ -141,7 +141,7 @@ io.sockets.on('connection', function(socket) {
         if (name == '') {
             console.log("未入室のまま、どこかへ去っていきました。");
         } else {
-            var endMessage = name + "さんが退出しました。"
+            var endMessage = "<li><div>" + name + "さんが退出しました。</div></li>"
             msgDict[room].push(endMessage);
             //マスターが抜けるかどうか？
             if (nameDict[room][name][0]){
@@ -160,7 +160,7 @@ io.sockets.on('connection', function(socket) {
                 var newMaster = nameKeyList [Math.floor( Math.random() * nameKeyList.length )];
                 nameDict[room][newMaster][0] = true;
                 io.to(room).emit('master_change' , { timer : timerDict[room][1] });//オバーフロー直った？
-                io.to(room).emit('server_to_client' , {value : "部屋主が" + newMaster +"さんに変わりました。" })
+                io.to(room).emit('server_to_client' , {value : "<li><div>部屋主が" + newMaster +"さんに変わりました。</div></li>" })
             } else {
                 delete nameDict[room][name];
             }
@@ -219,10 +219,10 @@ io.sockets.on('connection', function(socket) {
     //タイマー関数
     var nowtime = 0;
     var drowFlag = true;
-    var timerText = "<h2>";
+    var timerText = "<div>";
     function time(){
     		io.to(room).emit("send_nowtime_fromServer",{
-    			htmlStile: timerText + nowtime + "秒</h2>"
+    			htmlStile: timerText + nowtime + "秒</div>"
     		});
     	if (nowtime > 0){
     		nowtime = nowtime - 1;
@@ -235,7 +235,7 @@ io.sockets.on('connection', function(socket) {
     				htmlStile: "<h2 style=\"text-align:center\"><font size=\"7\">次のお題は…I˙꒳​˙)</font></td>" ,
     				odai :"現在クールタイム中..." ,
     				name : "everyone"
-    		});
+    		    });
     		} else {
     			nowtime = 10;
     			timerText = "<h2 style=\"color:red\">";
