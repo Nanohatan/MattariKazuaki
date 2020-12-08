@@ -159,7 +159,7 @@ $(function(){
 			userAnswer: answer,
 			answerName : name
 		});
-		$("#userAnswer").val("").focus();
+		//$("#userAnswer").val("").focus();
 	});
 
 	$("#stampButton").submit(function(e){
@@ -301,8 +301,8 @@ $(function(){
                 // C03. client_to_serverイベント・データを送信する
                 socket.emit("client_to_server", {value : message});
             } else {
-            	name = message;
-                socket.emit("client_to_server_join", {value : selectRoom , name : name});
+				name = message;
+				
             	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
             	socket.emit("client_to_server_addPlayer", {value : name});
             	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ...

@@ -31,14 +31,23 @@ http.listen(port, () => {
 });
 
 io.sockets.on("connection",function(socket){
-
   //追加
   var room = '';
   socket.on('client_to_server_join', function(data) {
-    room = data.value;
+    console.log("client join")
+    room = data.room;
+    socket.username=data.name
     socket.join(room);
+    io.to(room).emit('server_to_client', {value : socket.username+" joined!"  ,name:"NOTE"});
   });
-  //追加
+
+      // S05. client_to_serverイベント・データを受信する
+    socket.on('client_to_server', function(data) {
+        io.to(room).emit('server_to_client', {value : data.value  ,name:socket.username});
+    });
+    socket.on('disconnect',function(){
+        io.to(room).emit('server_to_client', {value : socket.username+" left!"  ,name:"NOTE"});
+    })
 
 	//送信されてきた描画情報を送信元以外のクライアントに転送
 	socket.on("draw_line_fromClient",function(data){
@@ -60,26 +69,7 @@ var timerDict = {}; // { room1 : [ timer1 , true ] , room2 : [ timer2 , false ] 
 io.sockets.on('connection', function(socket) {
     var room = '';
     var name = '';
-    // roomへの入室は、「socket.join(room名)」
-    socket.on('client_to_server_join', function(data) {
-        room = data.value;
-        socket.join(room);
-        //ルーム毎にプレイヤー名とチャットログのdict作成
-        if ( !(room in nameDict)){
-            timerDict[room] = [];
-            msgDict[room] = [];
-            console.log('cleate room：' + room);
-        }
-    });
 
-    // S05. client_to_serverイベント・データを受信する
-    socket.on('client_to_server', function(data) {
-        // S06. server_to_clientイベント・データを送信する
-        var text =  "<div>" + data.value + "</div>" ;
-        msgDict[room].push(text);
-        console.log(msgDict[room]);
-        io.to(room).emit('server_to_client', {value : text });
-    });
 
     // スタンプの処理
     socket.on('stamp_from_client', function(data) {
@@ -88,20 +78,6 @@ io.sockets.on('connection', function(socket) {
         io.to(room).emit('server_to_client_stamp', {value : hoge/*"スタンプ準備中..."data.stampNum*/});
     });
 
-    // S07. client_to_server_broadcastイベント・データを受信し、送信元以外に送信する
-    socket.on( 'client_to_server_broadcast' , function(data) {
-        var text = "<div>" + data.value + "</div>" ;
-        msgDict[room].push(text);
-        socket.broadcast.to(room).emit('server_to_client', {value : text});
-    });
-    // S08. client_to_server_personalイベント・データを受信し、送信元のみに送信する
-    socket.on('client_to_server_personal', function(data) {
-        var id = socket.id;
-        //name = data.value;
-        //var personalMessage = "あなたは、" + name + "さんとして入室しました。"
-        //ログ修復
-        io.to(id).emit('fix_log', {value :msgDict[room]});
-    });
 
     //Sアユム追加 名前をチェックして，同じであればポップアップ表示＋入室拒否
     socket.on('client_to_server_addPlayer', function(data) {
@@ -138,6 +114,7 @@ io.sockets.on('connection', function(socket) {
     //退室時にルーム初期化
     // S09. dicconnectイベントを受信し、退出メッセージを送信する
     socket.on('disconnect', function() {
+
         if (name == '') {
             console.log("未入室のまま、どこかへ去っていきました。");
         } else {
