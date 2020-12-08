@@ -162,16 +162,64 @@ $(function(){
 		$("#userAnswer").val("").focus();
 	});
 
+	//スタンプ仮
 	$("#stampButton").submit(function(e){
-		e.preventDefault();
-		//スタンプをナンバーで管理？
-		socket.emit("stamp_from_client", {stampNum : "" });
+		if (!document.getElementById('input1')){
+			var list = ["ok" , "no" , "kuyashii" ,"kononnbia" , "wakarann" ]; //ここデータベースにする？予定はスタンプの名前一覧
+			e.preventDefault();
+			const div = document.getElementById("allBody");//全部の元id
+			const input1 = document.createElement("div");//追加する箱
+			input1.setAttribute("class" , "input1");
+			input1.setAttribute("id" , 'input11');
+			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
+			const top = buttonPosition.top +30;
+			console.log();
+			input1.style.top = top + 'px'
+			const left = buttonPosition.left -buttonPosition.width+20;
+			input1.style.left = left + 'px'
+			div.appendChild(input1);
+			const input2 = document.createElement("div"); //ボタン並べる箱1
+			input2.setAttribute("class" , "input2");
+			const input3 = document.createElement("div"); //ボタン並べる箱2
+			//スタンプボタン追加
+			for (var id in list ) {
+				var button = document.createElement("button");
+				button.setAttribute("class" , "sampButton");
+				button.style.backgroundImage = 'url(./img/' + list[id] + '.png)';
+				button.type = "button";
+				button.id = list[id];
+				button.onclick = function(){hoge(this.id);} ;
+				input3.appendChild(button);
+			}
+			input1.appendChild(input2);
+			input2.appendChild(input3);
+		}
 	});
 
-	//スタンプ仮
-	socket.on("server_to_client_stamp", function(data){
-		$("<tr><td valign=\"top\"> [" + name + "]: <img src=\"./img/coffee.jpg\" alt=\"\" ></img></td></tr>").prependTo("#chat");
+	//画面がリサイズされたらスタンプ選択の位置を変更
+	$(window).resize(function() {
+		const input1 = document.getElementById('input11');
+		console.log(input1);
+		if (input1){
+			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
+			const top = buttonPosition.top +30;
+			console.log();
+			input1.style.top = top + 'px'
+			const left = buttonPosition.left - buttonPosition.width +20;
+			input1.style.left = left + 'px'
+			console.log("hohohoho");
+		}
 	});
+
+	//画面の他の場所をクリックされたら，スタンプ選択を消す
+	document.onclick = function(){document.getElementById('input11').remove();};
+
+	//スタンプの送信
+	function hoge(stampID){
+		socket.emit("client_to_server", {value : [name , stampID] , isMsg : false});
+		document.getElementById('input11').remove();
+		console.log(stampID);
+	}
 
 	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
@@ -299,7 +347,7 @@ $(function(){
             if (isEnter) {
               message = "[" + name + "]: " + message;
                 // C03. client_to_serverイベント・データを送信する
-                socket.emit("client_to_server", {value : message});
+                socket.emit("client_to_server", {value : message , isMsg : true});
             } else {
             	name = message;
                 socket.emit("client_to_server_join", {value : selectRoom , name : name});
@@ -319,7 +367,7 @@ $(function(){
                 socket.emit("client_to_server_personal", /*{value : name}*/"");
                 changeLabel();
             } else {
-            	alert("その名前は既に使用されています|ﾉ･ω･\)ﾉ⌒\(*･-･\)");
+            	alert('その名前は既に使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
             }
         }
 

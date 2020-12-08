@@ -1,0 +1,49 @@
+/*スタンプ画面の枠作成*/
+.input1 {
+/*位置，サイズ，枠などの指定*/
+    position: absolute ;
+    left: 200px ;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,.08);
+    width: 185px ;
+    height: 200px ;
+    background-color: #ffffff ;
+/*機能？設定*/
+    display: flex;
+    overflow: hidden;
+}
+
+.input2 {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    flex: 1 1 auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/*中身作成*/
+.input3 {
+    
+}
+
+.sampButton {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 auto;
+    flex: 0 auto;
+    display: inline-block;
+    margin: 3.5px;
+    width: 40px;
+    height: 40px;
+    background: none no-repeat;
+    background-size: contain;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.stampImage{
+    width:130px;
+}

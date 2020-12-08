@@ -70,18 +70,23 @@ io.sockets.on('connection', function(socket) {
     // S05. client_to_serverイベント・データを受信する
     socket.on('client_to_server', function(data) {
         // S06. server_to_clientイベント・データを送信する
-        var text =  "<div>" + data.value + "</div>" ;
+        //スタンプかメッセージ？
+        if (data.isMsg){
+            var text =  "<div>" + data.value + "</div>" ;
+        } else {
+            var text =  '<li><div> [' + data.value[0] + ']: </div><img class="stampImage" src="./img/' + data.value[1] + '.png" alt="" }></img></li>' ;
+        }
         msgDict[room].push(text);
         console.log(msgDict[room]);
         io.to(room).emit('server_to_client', {value : text });
     });
 
-    // スタンプの処理
-    socket.on('stamp_from_client', function(data) {
-        msgDict[room].push(data.stampNum);
-        var hoge = "";
-        io.to(room).emit('server_to_client_stamp', {value : hoge/*"スタンプ準備中..."data.stampNum*/});
-    });
+    //画像サイズ指定
+    function resizeImagePercent(id , resizeRate ) {
+   var resizeImg = document.getElementById(id);
+   resizeImg.width  = resizeImg.naturalWidth  * resizeRate;
+   resizeImg.height = resizeImg.naturalHeight * resizeRate;
+}
 
     // S07. client_to_server_broadcastイベント・データを受信し、送信元以外に送信する
     socket.on( 'client_to_server_broadcast' , function(data) {
@@ -168,7 +173,7 @@ io.sockets.on('connection', function(socket) {
 
 	//回答の受信 + 送信
 	socket.on("send_userAnswer_fromClient",function(data){
-	    var answer = data.userAnswer;
+	    var answer = "<div>" + data.userAnswer + "</div>";
 		console.log("user answer = " + answer + "\nnow odai is " + odai);
 		if (answer.includes("ｾｲｶｲ") ){
 			nowtime = 0;
