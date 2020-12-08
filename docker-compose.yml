@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  WebCanvas: 
+    build:
+      context: . #docker file保存場所
+      dockerfile: Dockerfile  #dockerfile名
+    depends_on:
+      - database
+    image: jikken
+    container_name: jikken
+    ports: 
+      - 8080:5000
+    volumes:
+      - .:/src
+      - ./WebCanvas/node_modules:/src/node_modules
+    environment:
+      DB_USER: postgres
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: jikken_db
+
+  database:
+    image: postgres:12.3
+    container_name: database
+    environment:
+      TZ: 'Asia/Tokyo'
+      POSTGRES_DB: jikken_db #jikken_dbが自動作成される
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init-sql:/docker-entrypoint-initdb.d:ro

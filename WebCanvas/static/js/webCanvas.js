@@ -164,7 +164,6 @@ $(function(){
 	// clientの情報取得
 	// 1人を指名
 	// お題を提示
-	var theme = "ちくわ";
 
 	$("#gameStart").submit(function(e){
 		e.preventDefault();
@@ -188,7 +187,7 @@ $(function(){
 		});
 	});
 
-	$("#endTimer").submit(function(e){
+	$("#stopTimer").submit(function(e){
 		e.preventDefault();
 		socket.json.emit("stopTimer_fromClient",{
 		});

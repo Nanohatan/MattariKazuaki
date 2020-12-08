@@ -4,7 +4,6 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
 
-
 app.use(express.static('static'));
 app.set('views', './views');
 app.set('view engine', 'pug');
@@ -15,7 +14,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/canv_and_chat', (req, res) => {
-    res.sendfile('static/webCanvas.html');
+	res.sendfile('static/webCanvas.html');
 });
 
 app.get('/canv_only', (req, res) => {
@@ -76,11 +75,31 @@ io.sockets.on("connection",function(socket){
 
 
 //お題の変更関数
+function gettheme(){
+	const client = require("./db_client").pg_client()
+	var theme = [];
+
+	client.connect()
+		.then(() => console.log("Connected successfuly"))
+		.then(() => client.query("select word from sample_table order by timestamp desc"))
+		.then(function (results) {
+			console.log(console.table(results.rows))
+			theme.push(console.table(results.rows))
+			console.table(results.rows)
+			// res.render('index', { title: 'セレクト', sql_result: results.rows})
+		})
+	.catch((e => console.log(e)))
+	.catch((() => client.end()))
+
+	return theme;
+}
+
 let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
 var odai;
 var kakite;
 var odaiLog;
 function changeOdai(){
+	// odaiList = gettheme();
 	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
 	kakite = nameList[Math.floor( Math.random() * nameList.length )];
 	odaiLog = "お題「" + odai + "」，描く人"+ kakite +"さん";
@@ -116,7 +135,7 @@ function time(){
 				name : "everyone"
 		});
 		} else {
-			nowtime = 10;
+			nowtime = 60;
 			timerText = "<h2 style=\"color:red\">";
 			changeOdai();
 		}
@@ -135,4 +154,3 @@ function startTimer(){
 function stopTimer(){
 	clearInterval(timer);
 }
-
