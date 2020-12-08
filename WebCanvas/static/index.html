@@ -1,14 +1,49 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-<meta charset="utf-8" />
-</head>
+<html lang="ja">
+    <head>
+        <title>Page Title</title>
+        <meta charset="UTF-8" />
+    </head>
 <body>
-
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+<form action="/createRoom" method="get" onsubmit="return validateForm()">
+    <input type="text" placeholder="room name" name="roomName"><br><br>
+    <input type="text" placeholder="your name" name="userName"><br><br>
+    <input type="submit" value="Submit">
+</form>
+<p id="message"></p>
 <a href="/canv_only">キャンバスオンリー</a>
 <a href="/canv_and_chat">キャンバスとチャット</a>
+
+
+<div class="container">
+    <h1>WebSocket-Chat</h1>
+    <form class="form-inline">
+        <div class="form-group">
+            <label class="roomLabel" for="rooms">部屋：</label>
+            <select class="form-control" id="rooms">
+                <option value="room01">部屋01</option>
+                <option value="room02">部屋02</option>
+            </select>
+            <label class="nameLabel" for="msgForm">名前：</label>
+            <input type="text" class="form-control" id="msgForm">
+        </div>
+        <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
+    </form>
+    <div id="chatLogs"></div>
+</div>
+
 </body>
+<script>
+    function validateForm(){
+      var rn = document.forms[0]["roomName"].value;
+      var un = document.forms[0]["userName"].value;
+      var msg = document.getElementById("message");
+      if ( rn=="" || un=="" ){
+        msg.innerHTML="full room and username";
+        return false;
+      } 
+      return true;
+    }
+</script>
 </html>
+
