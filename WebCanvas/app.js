@@ -33,12 +33,25 @@ http.listen(port, () => {
 io.sockets.on("connection",function(socket){
   //追加
   var room = '';
+
   socket.on('client_to_server_join', function(data) {
     console.log("client join")
     room = data.room;
+
     socket.username=data.name
     socket.join(room);
     io.to(room).emit('server_to_client', {value : socket.username+" joined!"  ,name:"NOTE"});
+    
+    var clients = io.sockets.adapter.rooms[room].sockets;
+    var member = []
+    for (var clientId in clients ) {
+        //this is the socket of each client in the room.
+        var clientSocket = io.sockets.connected[clientId];
+        //you can do whatever you need with this
+        member.push(clientSocket.username);
+    }
+    console.log(member);
+    io.to(room).emit('make_playerList',member);
   });
 
       // S05. client_to_serverイベント・データを受信する

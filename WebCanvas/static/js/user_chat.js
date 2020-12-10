@@ -19,4 +19,14 @@ $(function () {
       console.log(data)
       $('#chat').prepend($('<li>').text(data.name+':'+data.value));
     });
+
+
+    socket.on('make_playerList',function(members){
+      $('#players').empty();
+      members.forEach(function (m) {
+        $('#players').prepend($('<li>').text(m));
+      });
+
+      
+    });
 });
