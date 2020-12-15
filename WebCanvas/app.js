@@ -1,4 +1,5 @@
 const port = process.env.PORT || 5000;
+const { SIGQUIT } = require('constants');
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
@@ -185,23 +186,28 @@ io.sockets.on('connection', function(socket) {
 
 	//タイマーの起動
 	socket.on("startTimer_fromClient",function(data){
-		startTimer();
+        startTimer();
+        gettheme();
 		io.to(room).emit("startTimer_fromServer","");
 	});
 
 	//タイマーの停止
 	socket.on("stopTimer_fromClient",function(data){
-		stopTimer();
+        stopTimer();
+        theme = [];
 		io.to(room).emit("stopTimer_fromServer","");
 	});
 
     //お題の変更関数
-    let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
+    var theme = [];
     var odai;
     var kakite;
     function changeOdai(){
         var nameKeyList = Object.keys(nameDict[room]);
-    	kakite = nameKeyList[Math.floor( Math.random() * nameKeyList.length)];
+		kakite = nameKeyList[Math.floor( Math.random() * nameKeyList.length)];
+        odaiList = theme;
+        // odaiList = gettheme();
+        // console.log("odaiList:" + odaiList);
     	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
     	console.log(odai);
     	console.log(nameDict);
@@ -217,22 +223,25 @@ io.sockets.on('connection', function(socket) {
     }
 
 	function gettheme(){
-		const client = require("./db_client").pg_client()
-		var theme = [];
+        const client = require("./db_client").pg_client()
+        // var themeList = [];
 
 		client.connect()
 			.then(() => console.log("Connected successfuly"))
 			.then(() => client.query("select word from sample_table order by timestamp desc"))
 			.then(function (results) {
-				console.log(console.table(results.rows))
-				theme.push(console.table(results.rows))
-				console.table(results.rows)
-				// res.render('index', { title: 'セレクト', sql_result: results.rows})
+                console.table(results.rows)
+                for(var item of results.rows){
+                    console.log(item.word + "append to themeList");
+                    theme.push(item.word);
+                    // themeList.push(item.word);
+                }
+                // console.log("themeList:" + themeList);
 			})
-		.catch((e => console.log(e)))
-		.catch((() => client.end()))
-
-		return theme;
+            .catch((e => console.log(e)))
+            .catch((() => client.end()))
+        
+		// return themeList;
 	}
 
     //タイマー関数

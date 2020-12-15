@@ -3,11 +3,11 @@ version: '3'
 services:
   WebCanvas: 
     build:
-      context: . #docker file保存場所
-      dockerfile: Dockerfile  #dockerfile名
+      context: . # dockerfile保存場所
+      dockerfile: Dockerfile  # dockerfile名
     depends_on:
       - database
-    image: jikken
+    image: jikken # dockerfileで作ったイメージのタグ付け
     container_name: jikken
     ports: 
       - 8080:5000
