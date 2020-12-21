@@ -3,13 +3,19 @@
     <head>
         <title>Page Title</title>
         <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="css/index.css">
     </head>
 <body>
-<form action="/createRoom" method="get" onsubmit="return validateForm()">
-    <input type="text" placeholder="room name" name="roomName"><br><br>
-    <input type="text" placeholder="your name" name="userName"><br><br>
-    <input type="submit" value="Submit">
-</form>
+    <h1>まったりかずあき</h1>
+
+    <form id="room-form" action="/createRoom" method="get" onsubmit="return validateForm()">
+        <label for="rname">部屋名</label>
+        <input type="text" placeholder="room name" name="roomName" id="rname"><br><br>
+        <label for="uname">名前</label>
+        <input type="text" placeholder="your name" name="userName" id="uname" ><br><br>
+        <input type="submit" value="入室" class="entry_room">
+
+    </form>
 <p id="message"></p>
 <a href="/canv_only">キャンバスオンリー</a>
 <a href="/canv_and_chat">キャンバスとチャット</a>
@@ -39,7 +45,7 @@
       var un = document.forms[0]["userName"].value;
       var msg = document.getElementById("message");
       if ( rn=="" || un=="" ){
-        msg.innerHTML="full room and username";
+        msg.innerHTML="部屋名・名前はうめてね";
         return false;
       } 
       return true;
