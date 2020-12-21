@@ -1,55 +1,116 @@
 doctype html
-head
-  meta(charset='UTF-8')
-  title webCanvas
-  link(rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
-  link(rel='stylesheet' type='text/css' href='./css/slider.css')
-  link(rel='stylesheet' type='text/css' href='./css/webCanvasStyle.css')
-  h1=roomName
-.row
-  .col-sm-12.col-md-8
-    canvas#mycanvas(width='640' height='360') Canvas&#x306B;&#x5BFE;&#x5FDC;&#x3057;&#x305F;&#x6700;&#x65B0;&#x306E;&#x30D6;&#x30E9;&#x30A6;&#x30B6;&#x3092;&#x304A;&#x4F7F;&#x3044;&#x304F;&#x3060;&#x3055;&#x3044;
-  .col-sm-12.col-md-4
-    form#send
-      input#name.form-control(type='text' placeholder='Your HN' value=userName required='')
-      input#msg.form-control(type='text' placeholder='message' required='')
-      button.btn.btn-primary.btn-default(type='submit') Send!
-    div(style='background-color:#fff;overflow-y:scroll;width:300px; height:280px')
-      ul#chat(style='list-style:none;')
-.row
-  .col-sm-12.col-md-9
-    .col-sm-3.col-md-1
-      canvas#colorPrev.prev(width='50' height='50')
-    .col-sm-9.col-md-5
-      ul(style='list-style:none;')
-        li
+html(lang='ja')
+  head
+    meta(charset='UTF-8')
+    title webCanvas
+    link(rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
+    link(rel='stylesheet' type='text/css' href='./css/slider.css')
+    link(rel='stylesheet' type='text/css' href='./css/webCanvasStyle.css')
+  body
+    // 1：ここから追加
+    .row
+      #odai.col-sm-12.col-md-8
+        h2(style='text-align:center')
+          font(size='7') ゲーム開始待ち…
+      .col-sm-12.col-md-4
+        #timer
+          h2
+            | 0秒
+        form#startTimerForm
+          input#startTimer.btn.btn-dark(type='submit' value='Game Start' disabled='false')
+        form#stopTimerForm
+          input#stopTimer.btn.btn-dark(type='submit' value='Stop Timer' disabled='false')
+    // 1：ここまで
+    .row
+      .col-sm-12.col-md-8
+        canvas#mycanvas(width='640' height='360') Canvasに対応した最新のブラウザをお使いください
+      //
+        <form id="timerStart">
+        <input type="button" value="カウント開始" id="startcount" onclick="startShowing();">
+        </form>
+        <form id="timerStop">
+        <input type="button" value="カウント停止" id="endcount" onclick="stopShowing();">
+        </form>
+        <p id="PassageArea">(ここにカウントが表示されます)</p>
+      .col-sm-12.col-md-4
+        //
+          多分いらない... 元のメッセージとか名前
+          <form id="send">
+          <input type="text" id="name" class="form-control" placeholder="name" required>
+          <input type="text" id="msg" class="form-control" placeholder="message" required>
+          <button type="submit" class="btn btn-primary btn-default">Send!</button>
+          </form>
+        // 2：ここから追加
+        form#answer
+          input#userAnswer.form-control(type='text' placeholder='say answer!!' required='')
+          button.btn.btn-info(type='submit') Answer!
+        form#stampButton
+          button.btn.btn-success(type='submit') stamp
+        ul#players(style='list-style:none;')
+          li  プレイヤー一覧 
+        // 2：ここまで
+        div(style='background-color:#fff;overflow-y:scroll;width:300px; height:280px')
+          ul#chat(style='list-style:none;')
+    .row
+      .col-sm-12.col-md-9
+        .col-sm-3.col-md-1
+          canvas#colorPrev.prev(width='50' height='50')
+        .col-sm-9.col-md-5
+          ul(style='list-style:none;')
+            li
+              label
+                | R:	
+                input#colorR.sliders(type='text' data-slider-max='255' 　data-slider-min='0' data-slider-value='0')
+            li
+              label
+                | G:	
+                input#colorG.sliders(type='text' data-slider-max='255' 　data-slider-min='0' data-slider-value='0')
+            li
+              label
+                | B:	
+                input#colorB.sliders(type='text' data-slider-max='255' 　data-slider-min='0' data-slider-value='0')
+        .col-sm-3.col-md-1
+          canvas#widthPrev.prev(width='50' height='50')
+        .col-sm-9.col-md-5
           label
-            | R:&#x9;
-            input#colorR.sliders(type='text' data-slider-max='255' data-slider-value='0')
-        li
-          label
-            | G:&#x9;
-            input#colorG.sliders(type='text' data-slider-max='255' data-slider-value='0')
-        li
-          label
-            | B:&#x9;
-            input#colorB.sliders(type='text' data-slider-max='255' data-slider-value='0')
-    .col-sm-3.col-md-1
-      canvas#widthPrev.prev(width='50' height='50')
-    .col-sm-9.col-md-5
-      label
-        | Pen size:&#x9;
-        input#penWidth.sliders(type='text' data-slider-max='25' data-slider-min='1' data-slider-value='1')
-div
-  .col-md-6
-    button#erase.btn.btn-primary.btn-lg(type='button') &#x6D88;&#x53BB;
-  .col-md-6
-    button#save.btn.btn-lg(type='button') &#x4FDD;&#x5B58;
-#gallery
-script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js')
-link(rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css')
-script(src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js')
-script(src='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js')
-script(type='text/javascript' src='./js/bootstrap-slider.js')
-script(type='text/javascript' src='./socket.io/socket.io.js')
-script(type='text/javascript' src='./js/webCanvas.js')
+            | Pen size:	
+            input#penWidth.sliders(type='text' data-slider-max='25' data-slider-min='1' data-slider-value='1')
+      //
+        <select id="penColor">
+        <option value="black">黒</option>
+        <option value="red">赤</option>
+        <option value="blue">青</option>
+        <option value="white">白</option>
+        </select>
+        <select id="penWidth">
+        <option value="1">細</option>
+        <option value="3">並</option>
+        <option value="5">太</option>
+        </select>
+    div
+      .col-md-6
+        button#erase.btn.btn-primary.btn-lg(type='button') 消去
+      .col-md-6
+        button#save.btn.btn-lg(type='button') 保存
+    #gallery
+    .container
+      h1 WebSocket-Chat
+      form#formInline.form-inline
+        .form-group
+          label.roomLabel(for='rooms') 部屋：
+          select#rooms.form-control
+            option(value='room01') 部屋01
+            option(value='room02') 部屋02
+          label.nameLabel(for='msgForm') 名前：
+          input#msgForm.form-control(type='text')
+        //
+          この子いらないのでは？？
+          <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
+      #chatLogs
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js')
+    link(rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js')
+    script(src='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js')
+    script(type='text/javascript' src='./js/bootstrap-slider.js')
+    script(type='text/javascript' src='./socket.io/socket.io.js')
+    script(type='text/javascript' src='./js/webCanvas.js')

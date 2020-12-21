@@ -31,7 +31,7 @@ http.listen(port, () => {
 	console.log('listening on *:'+port);
 });
 
-io.sockets.on("connection",function(socket){
+/* io.sockets.on("connection",function(socket){
 
   //追加
   var room = '';
@@ -51,7 +51,7 @@ io.sockets.on("connection",function(socket){
 		socket.broadcast.to(room).emit("erase_fromServer","");
 	});
 	socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
-});
+}); */
 
 //本当はグローバル変数は良くないですが...
 var nameDict = {}; // { room1 : { name:[t,1] , name2:[t,2] } , room2 : {…} , ...}
@@ -61,10 +61,31 @@ var timerDict = {}; // { room1 : [ timer1 , true ] , room2 : [ timer2 , false ] 
 io.sockets.on('connection', function(socket) {
     var room = '';
     var name = '';
+
+    socket.on('client_to_server_join', function(data) {
+        room = data.value;
+        socket.join(room);
+      });
+      //追加
+    
+        //送信されてきた描画情報を送信元以外のクライアントに転送
+        socket.on("draw_line_fromClient",function(data){
+            socket.broadcast.to(room).emit("draw_line_fromServer",data);
+        });
+    
+        //画面消去の通知を送信元以外のクライアントに転送
+        socket.on("erase_fromClient",function(data){
+            socket.broadcast.to(room).emit("erase_fromServer","");
+        });
+        socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
+
+
     // roomへの入室は、「socket.join(room名)」
     socket.on('client_to_server_join', function(data) {
         room = data.value;
         socket.join(room);
+        io.to(room).emit('greeting',data.name+"参加")
+
         //ルーム毎にプレイヤー名とチャットログのdict作成
         if ( !(room in nameDict)){
             timerDict[room] = [];
