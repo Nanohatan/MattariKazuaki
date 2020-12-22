@@ -298,7 +298,7 @@ $(function(){
 		socket.emit("client_to_server_join", {value : r_name , name : u_name});
 		socket.emit("client_to_server_addPlayer", {value : u_name});
 		socket.on("greeting",function(msg){
-			$("#chat").append("<li>"+msg+"</li>");
+			$("#chat").prepend("<li>"+msg+"</li>");
 		})
 
 
@@ -307,8 +307,8 @@ $(function(){
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
             $("#msgForm").val('');
-            if (isEnter) {
-              message = "[" + name + "]: " + message;
+            if (true) {
+              message = "[" + u_name + "]: " + message;
                 // C03. client_to_serverイベント・データを送信する
                 socket.emit("client_to_server", {value : message});
             } else {/* 
