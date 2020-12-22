@@ -139,6 +139,7 @@ const pickr = new Pickr({
 	  
 
 
+
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
 		//ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
@@ -170,6 +171,7 @@ const pickr = new Pickr({
 			return "B: "+value;
 		}
 	});
+	*/
 
 	*/
 
