@@ -190,7 +190,7 @@ $(function(){
 	//スタンプ仮
 	$("#stampButton").submit(function(e){
 		if (!document.getElementById('input1')){
-			var list = ["ok" , "no" , "kuyashii" ,"koronnbia" , "wakarann" , "tyottomatte" ,"wakatta" , "arigato" , "otukaresama" , "baibai" ]; //ここデータベースにする？予定はスタンプの名前一覧
+			var list = ["ok" , "no" , "kuyashii" ,"koronnbia" , "wakarann" , "tyottomatte" ,"wakatta" , "arigato" , "otukaresama" , "baibai" , "gomen" , "oko" , "irassyai" , "hai" ]; //ここデータベースにする？予定はスタンプの名前一覧
 			e.preventDefault();
 			const div = document.getElementById("allBody");//全部の元id
 			const input1 = document.createElement("div");//追加する箱
@@ -348,7 +348,6 @@ $(function(){
 
 //〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
 
-
 	//追加項目
 	//----------------------------------------↓こっからｷﾔﾏ
 	
@@ -382,6 +381,7 @@ $(function(){
             }
             e.preventDefault();
         });
+
 		function afterAddPlayer() {
     		console.log(isSameName);
     		if (isSameName){
