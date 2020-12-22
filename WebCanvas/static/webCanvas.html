@@ -8,6 +8,8 @@
 		<link rel="stylesheet" type="text/css" href="./css/slider.css">
 		<link rel="stylesheet" type="text/css" href="./css/webCanvasStyle.css">
 
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+
 	</head>
 	<body>
 <!--1：ここから追加-->
@@ -59,19 +61,28 @@
 		</div>
 	</div>
 
+	<!-- カラーピッカーここから -->
+	<div class="container">
+		<input type="text" class="pickr">
+	</div>
+	  <!-- カラーピッカーここまで -->
+
 	<div class="row">
 		<div class="col-sm-12 col-md-9">
+			
 			<div class="col-sm-3 col-md-1">
 				<canvas width="50" height="50" id="colorPrev" class="prev"></canvas>
 			</div>
+			<!--
 			<div class="col-sm-9 col-md-5">
 				<ul style="list-style:none;">
+					
 					<li><label>R:	<input id="colorR" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
 					<li><label>G:	<input id="colorG" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
 					<li><label>B:	<input id="colorB" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
 				</ul>
 			</div>
-
+			-->
 			<div class="col-sm-3 col-md-1">
 				<canvas width="50" height="50" id="widthPrev" class="prev"></canvas>
 			</div>
@@ -91,6 +102,8 @@
 			<option value="5">太</option>
 		</select> -->
 	</div>
+
+	
 	<div>
 		<div class="col-md-6">
 			<button type="button" id="erase" class="btn btn-primary btn-lg">消去</button>
@@ -101,6 +114,9 @@
 	</div>
 	<div id="gallery"></div>
 
+	<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+	<!--
 	<div class="container">
         <h1>WebSocket-Chat</h1>
         <form class="form-inline" id ="formInline">
@@ -115,11 +131,12 @@
             </div>
             <!--この子いらないのでは？？
             <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
-            -->
+            
         </form>
         <div id="chatLogs"></div>
     </div>
-    
+-->
+
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
@@ -127,6 +144,8 @@
 	<script type="text/javascript" src="./js/bootstrap-slider.js"></script>
 	<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="./js/webCanvas.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
 	</body>
 </html>
