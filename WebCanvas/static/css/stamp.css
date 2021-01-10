@@ -6,26 +6,30 @@
     padding: 10px;
     border-radius: 8px;
     border: 1px solid rgba(0,0,0,.08);
-    width: 185px ;
+    width: 320px ;
     height: 200px ;
-    background-color: #ffffff ;
+    background-color: #ffffff;
 /*機能？設定*/
     display: flex;
     overflow: hidden;
 }
 
+.overImg{
+    position: relative;
+    width:130px;
+    height:130px;
+    top: 20px;
+}
+
 .input2 {
+    height: 177px;
+    width: 168px;
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-box-flex: 1;
     -webkit-flex: 1 1 auto;
     flex: 1 1 auto;
     -webkit-overflow-scrolling: touch;
-}
-
-/*中身作成*/
-.input3 {
-    
 }
 
 .sampButton {
@@ -42,6 +46,12 @@
     outline: none;
     border-radius: 4px;
     cursor: pointer;
+    border:1px solid white
+}
+
+.input2 div a:hover .sampButton{
+    border:1px solid #008fff;
+    opacity:0.6;
 }
 
 .stampImage{
