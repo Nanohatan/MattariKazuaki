@@ -163,7 +163,6 @@ $(function(){
 			userAnswer: answer,
 			answerName : name
 		});
-		$("#userAnswer").val("").focus();
 	});
 
 	//お手付きの処理
@@ -379,15 +378,27 @@ $(function(){
         function appendMsg(text) {
 			$(text).prependTo("#chat");
             //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
-        }
+		}
+		
+
+		const urlParams = new URLSearchParams(window.location.search);
+		const r_name = urlParams.get('roomName');
+		const u_name = urlParams.get('userName');
+		console.log(u_name,r_name);
+		socket.emit("client_to_server_join", {value : r_name , name : u_name});
+		socket.emit("client_to_server_addPlayer", {value : u_name});
+		socket.on("greeting",function(msg){
+			$("#chat").prepend("<li>"+msg+"</li>");
+		})
+
 
 		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
         $("#formInline").submit(function(e) {
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
             $("#msgForm").val('');
-            if (isEnter) {
-              message = "[" + name + "]: " + message;
+            if (true) {
+              message = "[" + u_name + "]: " + message;
                 // C03. client_to_serverイベント・データを送信する
                 socket.emit("client_to_server", {value : message , isMsg : true});
             } else {
@@ -395,7 +406,7 @@ $(function(){
                 socket.emit("client_to_server_join", {value : selectRoom , name : name});
             	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
             	socket.emit("client_to_server_addPlayer", {value : name});
-            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ...
+            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ... */
             }
             e.preventDefault();
         });

@@ -1,0 +1,42 @@
+body{
+    background-color: aliceblue;
+}
+
+#room-form{
+    text-align: center;
+    border-radius: 10px;
+    background-color:lightblue;
+    padding: 20px;
+}
+input[type=text]{
+    width: 50%;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+
+.entry_room {
+	box-shadow:inset 0px 1px 0px 0px #a1d5f5;
+	background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+	background-color:#63b8ee;
+	border-radius:6px;
+	border:1px solid #3866a3;
+	display:inline-block;
+	cursor:pointer;
+	color:#14396a;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:14px 32px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #7cacde;
+}
+.entry_room:hover {
+	background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+	background-color:#468ccf;
+}
+.entry_room:active {
+	position:relative;
+	top:1px;
+}

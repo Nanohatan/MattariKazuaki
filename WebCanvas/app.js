@@ -1,31 +1,37 @@
 const port = process.env.PORT || 5000;
+const { SIGQUIT } = require('constants');
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
+const url = require('url');
 
 app.use(express.static('static'));
 app.set('views', './views');
 app.set('view engine', 'pug');
 
 app.get('/', (req, res) => {
-	res.sendfile('static/index.html');
-    //res.render('index');
+	res.sendFile(__dirname+'/static/index.html');
 });
 
 app.get('/canv_and_chat', (req, res) => {
-    res.sendfile('static/webCanvas.html');
+    res.sendFile(__dirname+'/static/webCanvas.html');
 });
 
 app.get('/canv_only', (req, res) => {
-    res.sendfile('static/canv.html');
+    res.sendFile(__dirname+'/static/canv.html');
+});
+
+app.get('/createRoom', (req, res) => {
+	const queryObject = url.parse(req.url,true).query
+	res.render('canv',{roomName:queryObject.roomName,userName:queryObject.userName})
 });
 
 http.listen(port, () => {
 	console.log('listening on *:'+port);
 });
 
-io.sockets.on("connection",function(socket){
+/* io.sockets.on("connection",function(socket){
 
   //追加
   var room = '';
@@ -45,7 +51,7 @@ io.sockets.on("connection",function(socket){
 		socket.broadcast.to(room).emit("erase_fromServer","");
 	});
 	socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
-});
+}); */
 
 //本当はグローバル変数は良くないですが...
 var nameDict = {}; // { room1 : { name:[t,1] , name2:[t,2] } , room2 : {…} , ...}
@@ -55,10 +61,31 @@ var timerDict = {}; // { room1 : [ timer1 , true ] , room2 : [ timer2 , false ] 
 io.sockets.on('connection', function(socket) {
     var room = '';
     var name = '';
+
+    socket.on('client_to_server_join', function(data) {
+        room = data.value;
+        socket.join(room);
+      });
+      //追加
+    
+        //送信されてきた描画情報を送信元以外のクライアントに転送
+        socket.on("draw_line_fromClient",function(data){
+            socket.broadcast.to(room).emit("draw_line_fromServer",data);
+        });
+    
+        //画面消去の通知を送信元以外のクライアントに転送
+        socket.on("erase_fromClient",function(data){
+            socket.broadcast.to(room).emit("erase_fromServer","");
+        });
+        socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
+
+
     // roomへの入室は、「socket.join(room名)」
     socket.on('client_to_server_join', function(data) {
         room = data.value;
         socket.join(room);
+        io.to(room).emit('greeting',data.name+"参加")
+
         //ルーム毎にプレイヤー名とチャットログのdict作成
         if ( !(room in nameDict)){
             timerDict[room] = [];
@@ -173,7 +200,7 @@ io.sockets.on('connection', function(socket) {
 
 	//回答の受信 + 送信
 	socket.on("send_userAnswer_fromClient",function(data){
-	    var answer = "<div>" + data.userAnswer + "</div>";
+	    var answer = "<div>" +  data.userAnswer + "</div>";
 		console.log("user answer = " + answer + "\nnow odai is " + odai);
 		if (answer.includes("ｾｲｶｲ") ){
 			nowtime = 0;
@@ -185,23 +212,28 @@ io.sockets.on('connection', function(socket) {
 
 	//タイマーの起動
 	socket.on("startTimer_fromClient",function(data){
-		startTimer();
+        startTimer();
+        gettheme();
 		io.to(room).emit("startTimer_fromServer","");
 	});
 
 	//タイマーの停止
 	socket.on("stopTimer_fromClient",function(data){
-		stopTimer();
+        stopTimer();
+        theme = [];
 		io.to(room).emit("stopTimer_fromServer","");
 	});
 
     //お題の変更関数
-    let odaiList = ["ちくわ" , "とうふ" , "だいこん" , "もち巾着" , "牛すじ" , "はんぺん" , "こんにゃく" , "じゃがいも" , "おでん食べたい！"];
+    var theme = [];
     var odai;
     var kakite;
     function changeOdai(){
         var nameKeyList = Object.keys(nameDict[room]);
-    	kakite = nameKeyList[Math.floor( Math.random() * nameKeyList.length)];
+		kakite = nameKeyList[Math.floor( Math.random() * nameKeyList.length)];
+        odaiList = theme;
+        // odaiList = gettheme();
+        // console.log("odaiList:" + odaiList);
     	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
     	console.log(odai);
     	console.log(nameDict);
@@ -215,6 +247,28 @@ io.sockets.on('connection', function(socket) {
     		odai : odai
     	});
     }
+
+	function gettheme(){
+        const client = require("./db_client").pg_client()
+        // var themeList = [];
+
+		client.connect()
+			.then(() => console.log("Connected successfuly"))
+			.then(() => client.query("select word from sample_table order by timestamp desc"))
+			.then(function (results) {
+                console.table(results.rows)
+                for(var item of results.rows){
+                    console.log(item.word + "append to themeList");
+                    theme.push(item.word);
+                    // themeList.push(item.word);
+                }
+                // console.log("themeList:" + themeList);
+			})
+            .catch((e => console.log(e)))
+            .catch((() => client.end()))
+        
+		// return themeList;
+	}
 
     //タイマー関数
     var nowtime = 0;
