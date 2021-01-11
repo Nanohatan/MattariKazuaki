@@ -222,8 +222,7 @@ $(function(){
 				button.addEventListener("mouseover", function( event ) {
 					overImg.setAttribute('src' , './img/' + this.id + '.png');
 					overImg.name = this.id;
-					overImg.
-				},false)
+				},false);
 				//マウスオーバーの時に<button>ではできなかったので...
 				var a = document.createElement("a");
 				a.appendChild(button);
