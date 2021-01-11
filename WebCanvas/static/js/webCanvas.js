@@ -154,6 +154,10 @@ $(function(){
 			odai = "まだ決まってないよ";
 		} else {
 			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
+			//ここでお手付きタイマースタート
+			//ユーザー一人一人に対しての処理なので，emitいらないかも
+			document.getElementById("userAnswer").setAttribute("disabled" , true);
+			startOtetukiTimer();
 		}
 		socket.emit("send_userAnswer_fromClient",{
 			userAnswer: answer,
@@ -161,16 +165,103 @@ $(function(){
 		});
 	});
 
-	$("#stampButton").submit(function(e){
-		e.preventDefault();
-		//スタンプをナンバーで管理？
-		socket.emit("stamp_from_client", {stampNum : "" });
-	});
+	//お手付きの処理
+    var nowtime = 10;
+    var timerText = "<h2>";
+    var badAnswerTimer;
+    function time(){
+    	document.getElementById("otetukiTimer").innerHTML = "<div>お手付き！" + nowtime + "</div>";
+    	if (nowtime > 0){
+    		nowtime = nowtime - 1;
+    	} else {
+    		nowtime = 10 ;
+    		clearInterval(badAnswerTimer)
+    		document.getElementById("userAnswer").removeAttribute("disabled");
+    		document.getElementById("otetukiTimer").innerHTML = "<div>" + 'お手付きタイマー' + "</div>";
+    	}
+    }
+
+    //お手付きタイマースタート
+    function startOtetukiTimer(){
+    	badAnswerTimer = setInterval(time, 1000);
+    }
 
 	//スタンプ仮
-	socket.on("server_to_client_stamp", function(data){
-		$("<tr><td valign=\"top\"> [" + name + "]: <img src=\"./img/coffee.jpg\" alt=\"\" ></img></td></tr>").prependTo("#chat");
+	$("#stampButton").submit(function(e){
+		if (!document.getElementById('input1')){
+			var list = ["ok" , "no" , "kuyashii" ,"koronnbia" , "wakarann" , "tyottomatte" ,"wakatta" , "arigato" , "otukaresama" , "baibai" , "gomen" , "oko" , "irassyai" , "hazukashi" , "omedetou" , "ohayou" , "ne-" ,"hai" , "warau" , "-ko" , "oyasumi"]; //ここデータベースにする？予定はスタンプの名前一覧
+			e.preventDefault();
+			const div = document.getElementById("allBody");//全部の元id
+			const input1 = document.createElement("div");//追加する箱
+			input1.setAttribute("class" , "input1");
+			input1.setAttribute("id" , 'input11');
+			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
+			const top = buttonPosition.top +30;
+			console.log();
+			input1.style.top = top + 'px'
+			const left = buttonPosition.left -buttonPosition.width-120;
+			input1.style.left = left + 'px'
+			div.appendChild(input1);
+			//マウスオーバーしているのを拡大表示
+			const overImg = document.createElement("img");
+			overImg.setAttribute("class" , "overImg");
+			overImg.setAttribute("id" , "overImg");
+			overImg.setAttribute('src' , './img/' + list[Math.floor( Math.random() * list.length )] + '.png');
+			input1.appendChild(overImg);
+			const input2 = document.createElement("div"); //ボタン並べる箱1
+			input2.setAttribute("class" , "input2");
+			const input3 = document.createElement("div"); //ボタン並べる箱2
+			//スタンプボタン追加
+			for (var id in list ) {
+				var button = document.createElement("button");
+				button.setAttribute("class" , "sampButton");
+				button.style.backgroundImage = 'url(./img/' + list[id] + '.png)';
+				button.type = "button";
+				button.id = list[id];
+				button.onclick = function(){hoge(this.id);} ;
+				button.addEventListener("mouseover", function( event ) {
+					overImg.setAttribute('src' , './img/' + this.id + '.png');
+					overImg.name = this.id;
+					overImg.
+				},false)
+				//マウスオーバーの時に<button>ではできなかったので...
+				var a = document.createElement("a");
+				a.appendChild(button);
+				input3.appendChild(a);
+			}
+			input1.appendChild(input2);
+			input2.appendChild(input3);
+		}
 	});
+
+	//スタンプの送信
+	function hoge(stampID){
+		socket.emit("client_to_server", {value : [name , stampID] , isMsg : false});
+		document.getElementById('input11').remove();
+		console.log(stampID);
+	}
+
+	//画面がリサイズされたらスタンプ選択の位置を変更
+	$(window).resize(function() {
+		const input1 = document.getElementById('input11');
+		const overImg = document.getElementById("overImg");
+		console.log(input1);
+		if (input1){
+			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
+			const top = buttonPosition.top +30;
+			console.log();
+			input1.style.top = top + 'px'
+			const left = buttonPosition.left - buttonPosition.width -120;
+			input1.style.left = left + 'px'
+			console.log("hohohoho");
+		}
+	});
+
+	//画面の他の場所をクリックされたら，スタンプ選択を消す
+	document.onclick = function(){
+		document.getElementById('input11').remove();
+		document.getElementById('overImg').remove();
+		};
 
 	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
@@ -213,7 +304,7 @@ $(function(){
 
 	//表示秒数変更
 	socket.on("send_nowtime_fromServer",function(data){
-		document.getElementById("timer").innerHTML = data.htmlStile;
+		document.getElementById("badAnswerTimer").innerHTML = data.htmlStile;
 	});	
 
 	//お題の変更
@@ -248,7 +339,7 @@ $(function(){
 	//マスター権限が移った際にボタンを押せるようにする
 	socket.on('master_change' , function(data) {
 		console.log("titmerFlag："+data.timerFlag);
-		if (!data.timer){
+		if (!data.badAnswerTimer){
 			document.getElementById("startTimer").removeAttribute("disabled");
 			document.getElementById("stopTimer").setAttribute("disabled" , true);
 		} else {
@@ -273,7 +364,6 @@ $(function(){
 	});
 
 //〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
-
 
 	//追加項目
 	//----------------------------------------↓こっからｷﾔﾏ
@@ -310,10 +400,9 @@ $(function(){
             if (true) {
               message = "[" + u_name + "]: " + message;
                 // C03. client_to_serverイベント・データを送信する
-                socket.emit("client_to_server", {value : message});
-            } else {/* 
-				name = message;
-
+                socket.emit("client_to_server", {value : message , isMsg : true});
+            } else {
+            	name = message;
                 socket.emit("client_to_server_join", {value : selectRoom , name : name});
             	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
             	socket.emit("client_to_server_addPlayer", {value : name});
@@ -321,6 +410,7 @@ $(function(){
             }
             e.preventDefault();
         });
+
 		function afterAddPlayer() {
     		console.log(isSameName);
     		if (isSameName){
@@ -331,7 +421,7 @@ $(function(){
                 socket.emit("client_to_server_personal", /*{value : name}*/"");
                 changeLabel();
             } else {
-            	alert("その名前は既に使用されています|ﾉ･ω･\)ﾉ⌒\(*･-･\)");
+            	alert('その名前は既に使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
             }
         }
 
