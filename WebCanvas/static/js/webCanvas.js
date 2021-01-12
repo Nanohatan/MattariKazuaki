@@ -161,8 +161,9 @@ $(function(){
 		}
 		socket.emit("send_userAnswer_fromClient",{
 			userAnswer: answer,
-			answerName : name
+			answerName : u_name
 		});
+		$("#userAnswer").val('');
 	});
 
 	//お手付きの処理
@@ -222,8 +223,7 @@ $(function(){
 				button.addEventListener("mouseover", function( event ) {
 					overImg.setAttribute('src' , './img/' + this.id + '.png');
 					overImg.name = this.id;
-					overImg.
-				},false)
+				},false);
 				//マウスオーバーの時に<button>ではできなかったので...
 				var a = document.createElement("a");
 				a.appendChild(button);
@@ -236,7 +236,7 @@ $(function(){
 
 	//スタンプの送信
 	function hoge(stampID){
-		socket.emit("client_to_server", {value : [name , stampID] , isMsg : false});
+		socket.emit("client_to_server", {value : [u_name , stampID] , isMsg : false});
 		document.getElementById('input11').remove();
 		console.log(stampID);
 	}
@@ -275,7 +275,7 @@ $(function(){
 
 	//お題や描きてなどのチャットメッセージ生成
 	socket.on("send_odaiMsg_fromServer",function(data){
-		if (data.name == name ){
+		if (data.name == u_name ){
 			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
 			var odaiLog = "描く人"+ data.name +"さん";
@@ -290,7 +290,7 @@ $(function(){
 		for (var player in data.nameDict){
 			var html = player + "　　　点数：" + data.nameDict[player][1];
 			var htmlTag = "<div>" ;
-			if (player == name){
+			if (player == u_name){
 				isMaster = data.nameDict[player][0];
 				htmlTag =  "<div style=\"color:blue\">";
 				console.log("isMaster："+isMaster);
@@ -310,7 +310,7 @@ $(function(){
 	//お題の変更
 	socket.on("send_odai_fromServer",function(data){
 		console.log("お題表示変更");
-		if (data.name == name || data.name == "everyone" ){
+		if (data.name == u_name || data.name == "everyone" ){
 			document.getElementById("odai").innerHTML = data.htmlStile;
 		} else {
 			document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\"> 描き手は" + data.name + "さん</font></td>";
@@ -371,7 +371,6 @@ $(function(){
 		sessionStorage.setItem('loginUser', '');
 
         var isEnter = false;
-        var name = '';
 
         // C04. server_to_clientイベント・データを受信する
         socket.on("server_to_client", function(data){appendMsg(data.value)});
@@ -379,7 +378,6 @@ $(function(){
 			$(text).prependTo("#chat");
             //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
 		}
-		
 
 		const urlParams = new URLSearchParams(window.location.search);
 		const r_name = urlParams.get('roomName');
@@ -387,9 +385,7 @@ $(function(){
 		console.log(u_name,r_name);
 		socket.emit("client_to_server_join", {value : r_name , name : u_name});
 		socket.emit("client_to_server_addPlayer", {value : u_name});
-		socket.on("greeting",function(msg){
-			$("#chat").prepend("<li>"+msg+"</li>");
-		})
+		setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ... */
 
 
 		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
@@ -397,17 +393,9 @@ $(function(){
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
             $("#msgForm").val('');
-            if (true) {
-              message = "[" + u_name + "]: " + message;
-                // C03. client_to_serverイベント・データを送信する
-                socket.emit("client_to_server", {value : message , isMsg : true});
-            } else {
-            	name = message;
-                socket.emit("client_to_server_join", {value : selectRoom , name : name});
-            	//Cｱﾕﾑ追加 client_to_server_addPlayer プレイヤーに追加する
-            	socket.emit("client_to_server_addPlayer", {value : name});
-            	setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ... */
-            }
+            message = "[" + u_name + "]: " + message;
+            // C03. client_to_serverイベント・データを送信する
+            socket.emit("client_to_server", {value : message , isMsg : true});
             e.preventDefault();
         });
 
@@ -425,12 +413,6 @@ $(function(){
             }
         }
 
-        function changeLabel() {
-            $(".nameLabel").text("メッセージ：");
-            $("#rooms").prop("disabled", true);
-            //$("sendButton").text("send"); そもそもボタン使われてなかったので...
-            isEnter = true;
-		}
 		//追加項目
 		//--------------------↑ここまでｷﾔﾏ
 	});

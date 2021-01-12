@@ -6,16 +6,19 @@ html(lang='ja')
     link(rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
     link(rel='stylesheet' type='text/css' href='./css/slider.css')
     link(rel='stylesheet' type='text/css' href='./css/webCanvasStyle.css')
-  body
+    link(rel='stylesheet' type='text/css' href='./css/stamp.css')
+  body#allBody
     // 1：ここから追加
     .row
       #odai.col-sm-12.col-md-8
         h2(style='text-align:center')
           font(size='7') ゲーム開始待ち…
       .col-sm-12.col-md-4
-        #timer
+        #badAnswerTimer
           h2
             | 0秒
+        #otetukiTimer
+          div  お手付きタイマー
         form#startTimerForm
           input#startTimer.btn.btn-dark(type='submit' value='Game Start' disabled='false')
         form#stopTimerForm
@@ -43,9 +46,8 @@ html(lang='ja')
         // 2：ここから追加
         form#answer
           input#userAnswer.form-control(type='text' placeholder='say answer!!' required='')
-          button.btn.btn-info(type='submit') Answer!
         form#stampButton
-          button.btn.btn-success(type='submit') stamp
+          button#stmB.btn.btn-success(type='submit') stamp
         ul#players(style='list-style:none;')
           li  プレイヤー一覧 
         // 2：ここまで
