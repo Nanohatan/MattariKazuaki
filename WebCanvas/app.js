@@ -273,10 +273,10 @@ io.sockets.on('connection', function(socket) {
     //タイマー関数
     var nowtime = 0;
     var drowFlag = true;
-    var timerText = "<div>";
+    var timerText = "<h2>";
     function time(){
     		io.to(room).emit("send_nowtime_fromServer",{
-    			htmlStile: timerText + nowtime + "秒</div>"
+    			htmlStile: timerText + nowtime + "秒</h2>"
     		});
     	if (nowtime > 0){
     		nowtime = nowtime - 1;
