@@ -13,6 +13,7 @@ $(function(){
 	var ctxColorPrev = document.getElementById("colorPrev").getContext("2d");
 	var ctxWidthPrev = document.getElementById("widthPrev").getContext("2d");
 	var r=0,g=0,b=0,pW=1;//R,G,B　ペンの太さ
+	var pikcolor;
 
 	var startX,startY,x,y;//マウスを動かし始めた時の座標、終点の座標
 	var borderWidth = 10;//ボーダー分の座標のズレを修正するためにボーダーの値を保存
@@ -67,7 +68,8 @@ $(function(){
 		ctx.lineTo(data.tX,data.tY);
 		ctx.stroke();
 
-		ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
+		//ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
+		ctx.strokeStyle = inputElement.value;
 		ctx.lineWidth = pW;
 	});
 	//全消し
@@ -82,13 +84,69 @@ $(function(){
 	/*
 	ペンの設定の反映
 	*/
+
+
+	//ここからカラーピッカー 
+	const inputElement = document.querySelector('.pickr');
+
+const pickr = new Pickr({
+  el: inputElement,
+  useAsButton: true,
+  default: '#42445A',
+  theme: 'classic',
+
+  swatches: [
+    'rgba(244, 67, 54, 1)',
+    'rgba(233, 30, 99, 0.95)',
+    'rgba(156, 39, 176, 0.9)',
+    'rgba(103, 58, 183, 0.85)',
+    'rgba(63, 81, 181, 0.8)',
+    'rgba(33, 150, 243, 0.75)',
+    'rgba(3, 169, 244, 0.7)',
+    'rgba(0, 188, 212, 0.7)',
+    'rgba(0, 150, 136, 0.75)',
+    'rgba(76, 175, 80, 0.8)',
+    'rgba(139, 195, 74, 0.85)',
+    'rgba(205, 220, 57, 0.9)',
+    'rgba(255, 235, 59, 0.95)',
+    'rgba(255, 193, 7, 1)'
+  ],
+
+  components: {
+    preview: true,
+    opacity: true,
+    hue: true,
+
+    interaction: {
+      hex: true,
+      rgba: true,
+      hsva: true,
+      input: true,
+      save: true
+    }
+  }
+}).on('init', pickr => {
+  inputElement.value = pickr.getSelectedColor().toRGBA().toString(0);
+}).on('save', color => {
+  inputElement.value = color.toRGBA().toString(0);
+  pikcolor = color.toRGBA().toString(0);
+  RGBfunc();
+  pickr.hide();
+})
+
+
+	//ここまでカラーピッカー 
+	  
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
-		ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
+		//ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
+		ctxColorPrev.fillStyle = inputElement.value;
 		ctxColorPrev.fillRect(0,0,50,50);
 
-		ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
+		//ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
+		ctx.strokeStyle = inputElement.value;
 	}
+	/*
 	$("#colorR").slider({
 		formater: function(value){
 			r = value;
@@ -110,6 +168,7 @@ $(function(){
 			return "B: "+value;
 		}
 	});
+	*/
 
 	$("#penWidth").slider({
 		formater: function(value){
@@ -117,7 +176,8 @@ $(function(){
 			pW = value;
 			ctxWidthPrev.clearRect(0,0, 50, 50);
 			ctxWidthPrev.beginPath();
-			ctxWidthPrev.fillStyle = "rgb("+r+","+g+","+b+")";
+			//ctxWidthPrev.fillStyle = "rgb("+r+","+g+","+b+")";
+			ctxColorPrev.fillStyle = inputElement.value;
 			ctxWidthPrev.arc(25,25,pW,0,Math.PI*2,false);
 			ctxWidthPrev.fill();
 
@@ -161,10 +221,13 @@ $(function(){
 		}
 		socket.emit("send_userAnswer_fromClient",{
 			userAnswer: answer,
+
 			answerName : u_name
+
 		});
 		$("#userAnswer").val('');
 	});
+
 
 	//お手付きの処理
     var nowtime = 10;
@@ -275,7 +338,9 @@ $(function(){
 
 	//お題や描きてなどのチャットメッセージ生成
 	socket.on("send_odaiMsg_fromServer",function(data){
+
 		if (data.name == u_name ){
+
 			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
 			var odaiLog = "描く人"+ data.name +"さん";
@@ -377,6 +442,7 @@ $(function(){
         function appendMsg(text) {
 			$(text).prependTo("#chat");
             //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
+
 		}
 
 		const urlParams = new URLSearchParams(window.location.search);
@@ -393,6 +459,7 @@ $(function(){
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
             $("#msgForm").val('');
+
             message = "[" + u_name + "]: " + message;
             // C03. client_to_serverイベント・データを送信する
             socket.emit("client_to_server", {value : message , isMsg : true});
@@ -409,9 +476,11 @@ $(function(){
                 socket.emit("client_to_server_personal", /*{value : name}*/"");
                 changeLabel();
             } else {
+
             	alert('その名前は既に使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
             }
         }
+
 
 		//追加項目
 		//--------------------↑ここまでｷﾔﾏ
