@@ -7,20 +7,26 @@
 		<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="./css/slider.css">
 		<link rel="stylesheet" type="text/css" href="./css/webCanvasStyle.css">
+		<link rel="stylesheet" type="text/css" href="./css/stamp.css">
 
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
 
 	</head>
-	<body>
+	<body id = "allBody">
 <!--1：ここから追加-->
 	<div class="row">
 		<div id="odai" class="col-sm-12 col-md-8">
 			<h2 style="text-align:center"><font size="7">ゲーム開始待ち…</font></td>
 		</div>
 		<div class="col-sm-12 col-md-4">
-			<div id="timer">
+			<div id="badAnswerTimer">
 				<h2>0秒</td>
 			</div>
+
+		<div id = "otetukiTimer">
+			<div> お手付きタイマー</div>
+		</div>
+
 			<form id="startTimerForm">
 				<input id="startTimer" type="submit" class="btn btn-dark" value="Game Start" disabled = "false">
 			</form>
@@ -34,6 +40,13 @@
 		<div class="col-sm-12 col-md-8">
 			<canvas width="640" height="360" id="mycanvas">Canvasに対応した最新のブラウザをお使いください</canvas>
 		</div>
+		<!-- <form id="timerStart">
+			<input type="button" value="カウント開始" id="startcount" onclick="startShowing();">
+		</form>
+		<form id="timerStop">
+			<input type="button" value="カウント停止" id="endcount" onclick="stopShowing();">
+		</form>
+		<p id="PassageArea">(ここにカウントが表示されます)</p> -->
 		<div class="col-sm-12 col-md-4">
 		<!-- 
 		多分いらない... 元のメッセージとか名前
@@ -46,7 +59,9 @@
 <!-- 2：ここから追加 -->
 			<form id ="answer">
 				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
-				<button type="submit" class="btn btn-info">Answer!</button>
+			</form>
+			<form id = "stampButton">
+				<button id="stmB" type="submit" class="btn btn-success">stamp</button>
 			</form>
 			<form id = "stampButton">
 				<button type="submit" class="btn btn-success">stamp</button>
@@ -131,6 +146,7 @@
             </div>
             <!--この子いらないのでは？？
             <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
+
             
         </form>
         <div id="chatLogs"></div>
@@ -144,6 +160,7 @@
 	<script type="text/javascript" src="./js/bootstrap-slider.js"></script>
 	<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="./js/webCanvas.js"></script>
+
 
 	<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
