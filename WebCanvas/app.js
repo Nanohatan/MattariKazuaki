@@ -31,30 +31,9 @@ http.listen(port, () => {
 	console.log('listening on *:'+port);
 });
 
-/* io.sockets.on("connection",function(socket){
-
-  //追加
-  var room = '';
-  socket.on('client_to_server_join', function(data) {
-    room = data.value;
-    socket.join(room);
-  });
-  //追加
-
-	//送信されてきた描画情報を送信元以外のクライアントに転送
-	socket.on("draw_line_fromClient",function(data){
-		socket.broadcast.to(room).emit("draw_line_fromServer",data);
-	});
-
-	//画面消去の通知を送信元以外のクライアントに転送
-	socket.on("erase_fromClient",function(data){
-		socket.broadcast.to(room).emit("erase_fromServer","");
-	});
-	socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
-}); */
-
 //本当はグローバル変数は良くないですが...
-var nameDict = {}; // { room1 : { name:[t,1] , name2:[t,2] } , room2 : {…} , ...}
+var canvasDict ={}; // {room1 : [~~~ , /// , @@@ , ...] , room2 :{...} , ... }
+var nameDict = {}; // { room1 : { name:[true,1] , name2:[false,2] } , room2 : {…} , ...}
 var msgDict = {}; // { room1 : [ msg1 , msg2 , ...] , room2 : [msgA , msgB , ...] , ...}
 var timerDict = {}; // { room1 : [ timer1 , true ] , room2 : [ timer2 , false ] , ...}
 // S04. connectionイベントを受信する
@@ -67,9 +46,10 @@ io.sockets.on('connection', function(socket) {
         socket.join(room);
       });
       //追加
-    
+
         //送信されてきた描画情報を送信元以外のクライアントに転送
         socket.on("draw_line_fromClient",function(data){
+            canvasDict[room].push(data);
             socket.broadcast.to(room).emit("draw_line_fromServer",data);
         });
     
@@ -84,12 +64,12 @@ io.sockets.on('connection', function(socket) {
     socket.on('client_to_server_join', function(data) {
         room = data.value;
         socket.join(room);
-        io.to(room).emit('greeting',data.name+"参加")
-
+        //io.to(room).emit('greeting',data.name+"参加")
         //ルーム毎にプレイヤー名とチャットログのdict作成
         if ( !(room in nameDict)){
             timerDict[room] = [];
             msgDict[room] = [];
+            canvasDict[room] = [];
             console.log('cleate room：' + room);
         }
     });
@@ -124,35 +104,26 @@ io.sockets.on('connection', function(socket) {
     // S08. client_to_server_personalイベント・データを受信し、送信元のみに送信する
     socket.on('client_to_server_personal', function(data) {
         var id = socket.id;
-        //name = data.value;
-        //var personalMessage = "あなたは、" + name + "さんとして入室しました。"
         //ログ修復
-        io.to(id).emit('fix_log', {value :msgDict[room]});
+        io.to(id).emit('fix_log', {value :msgDict[room] , canvasDict : canvasDict[room]});
     });
 
-    //Sアユム追加 名前をチェックして，同じであればポップアップ表示＋入室拒否
+    //Sアユム_入室処理
     socket.on('client_to_server_addPlayer', function(data) {
         var checkName = data.value;
         //部屋を作った人だけの処理
         if ( !(nameDict[room]) ){
             name = checkName;
+            makeTable(room);
             nameDict[room] = {};
             nameDict[room][name] = [ true , 0 ] ;
             console.log(nameDict[room]);
             io.to(room).emit('make_playerList', {nameDict : nameDict[room]});
             io.to(room).emit( "is_same_name" , {flag : true} );
             io.to(room).emit("stopTimer_fromServer" , '' );
+            insertData(room,name);
             return;
         }
-        //2人目からは名前のチェックが入る
-        for ( var playerInfo in nameDict[room]) {
-            if (playerInfo == checkName ){
-                io.to(room).emit( "is_same_name" , {flag : false} );
-                console.log("the name already exist");
-                return;
-            }
-        }
-        //同じ名前が無い場合メンバーとして追加
         name = checkName;
         //nameDict[room]の中身は，[名前 , マスターか？ , 点数（仮）]
         nameDict[room][name] = [ false , 0 ] ;
@@ -160,6 +131,7 @@ io.sockets.on('connection', function(socket) {
         console.log(nameDict[room]);
         io.to(room).emit('make_playerList', {nameDict : nameDict[room]});
         io.to(room).emit( "is_same_name" , {flag : true} );
+        insertData(room,name);
     });
 
     //退室時にルーム初期化
@@ -173,9 +145,11 @@ io.sockets.on('connection', function(socket) {
             //マスターが抜けるかどうか？
             if (nameDict[room][name][0]){
                 delete nameDict[room][name];
+                deleteData( room, name );
                 //ルームから人がいなくなったら初期化
                 var nameKeyList = Object.keys(nameDict[room]);
                 if ( nameKeyList.length == 0 ){
+                    dropTable(room);
                     delete nameDict[room];
                     delete msgDict[room];
                     stopTimer();
@@ -186,13 +160,14 @@ io.sockets.on('connection', function(socket) {
                 //ランダムに選んだ人にマスター権限付与
                 var newMaster = nameKeyList [Math.floor( Math.random() * nameKeyList.length )];
                 nameDict[room][newMaster][0] = true;
-                io.to(room).emit('master_change' , { timer : timerDict[room][1] });//オバーフロー直った？
+                io.to(room).emit('master_change' , { timer : timerDict[room][1] });
                 io.to(room).emit('server_to_client' , {value : "<li><div>部屋主が" + newMaster +"さんに変わりました。</div></li>" })
             } else {
                 delete nameDict[room][name];
+                deleteData( room, name );
             }
             console.log("name remove：" + name );
-            console.log(nameDict[room]);
+    		console.log(nameDict[room]);
             socket.broadcast.to(room).emit('make_playerList', {nameDict : nameDict[room]});
             io.to(room).emit('server_to_client', {value : endMessage});
         }
@@ -236,7 +211,6 @@ io.sockets.on('connection', function(socket) {
         // console.log("odaiList:" + odaiList);
     	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
     	console.log(odai);
-    	console.log(nameDict);
     	io.to(room).emit("send_odai_fromServer",{
     		htmlStile : "<h2 style=\"text-align:center\"><font size=\"7\">" + odai + "</font></td>",
     		odai : odai ,
@@ -310,6 +284,45 @@ io.sockets.on('connection', function(socket) {
     	clearInterval(timerDict[room][0]);
         timerDict[room][1] = false;
     	console.log("timer stop：" + room);
+    }
+
+    //以下データベースのfanc()
+    function makeTable(roomName){
+        const client = require("./db_client").pg_client()
+        client.connect()
+            .then(() => console.log("Connected successfuly：make"))
+            .then(() => client.query("create table " + roomName + "(names varchar(10))"))
+            .catch((e => console.log(e)))
+            .catch((() => client.end()))
+    }
+
+    function insertData( roomName, userName ){
+        setTimeout(function() {
+        const client = require("./db_client").pg_client()
+        client.connect()
+            .then(() => console.log("Connected successfuly：insert"))
+            .then(() => client.query("insert into " + roomName + "( names ) values('" + userName + "')"))
+            .catch((e => console.log(e)))
+            .catch((() => client.end()))
+        } ,100);
+    }
+
+    function dropTable( roomName ){
+        const client = require("./db_client").pg_client()
+        client.connect()
+            .then(() => console.log("Connected successfuly：drop"))
+            .then(() => client.query("drop table " + roomName))
+            .catch((e => console.log(e)))
+            .catch((() => client.end()))
+    }
+
+    function deleteData( roomName, userName ){
+        const client = require("./db_client").pg_client()
+        client.connect()
+            .then(() => console.log("Connected successfuly：delete"))
+            .then(() => client.query("delete from " + roomName + " where names='" + userName + "'"))
+            .catch((e => console.log(e)))
+            .catch((() => client.end()))
     }
 
 });

@@ -59,6 +59,10 @@ $(function(){
 	});
 	//サーバーから転送されてきた描画情報を反映
 	socket.on("draw_line_fromServer",function(data){
+		draw_line(data);
+	});
+	
+	function draw_line(data){
 		ctx.strokeStyle = data.style;
 		ctx.lineWidth = data.width;
 
@@ -69,7 +73,8 @@ $(function(){
 
 		ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
 		ctx.lineWidth = pW;
-	});
+	}
+	
 	//全消し
 	$("#erase").click(function(){
 		ctx.clearRect(0,0, canvas.width, canvas.height);
@@ -283,7 +288,7 @@ $(function(){
 		$($("<div>").text(odaiLog)).prependTo("#chat");
 	});
 
-	var isMaster;
+	var ismaster;
 	//プレイヤー一覧生成
 	socket.on("make_playerList",function(data){
 		document.getElementById("players").innerHTML = "<div> プレイヤー一覧 </div>";
@@ -291,9 +296,9 @@ $(function(){
 			var html = player + "　　　点数：" + data.nameDict[player][1];
 			var htmlTag = "<div>" ;
 			if (player == u_name){
-				isMaster = data.nameDict[player][0];
+				ismaster = data.nameDict[player][0];
 				htmlTag =  "<div style=\"color:blue\">";
-				console.log("isMaster："+isMaster);
+				console.log("ismaster："+ismaster);
 			}
 			if (data.nameDict[player][0]){
 					html = "Master -> " + html;
@@ -320,7 +325,7 @@ $(function(){
 
 	//サーバーからタイマーを起動
 	socket.on("startTimer_fromServer",function(data){
-		if (isMaster){
+		if (ismaster){
 			document.getElementById("stopTimer").removeAttribute("disabled");
 			document.getElementById("startTimer").setAttribute("disabled" , true);
 			console.log("スタート");
@@ -329,7 +334,7 @@ $(function(){
 
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
-		if (isMaster){
+		if (ismaster){
 			document.getElementById("startTimer").removeAttribute("disabled");
 			document.getElementById("stopTimer").setAttribute("disabled" , true);
 			console.log("停止");
@@ -353,14 +358,10 @@ $(function(){
     	for (var msg in data.value){
 			$(data.value[msg]).prependTo("#chat");
 		}
+		for (var drow in data.canvasDict){
+			draw_line(data.canvasDict[drow]);
+		}
 		console.log("log fix compleet!!");
-	});
-
-	//同じ名前が使われていないかどうか？＋マスターかどうか？
-	var isSameName;
-	socket.on("is_same_name" , function(data){
-		isSameName = data.flag;
-		console.log("koko da yo!!");//特に意味のないログ
 	});
 
 //〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
@@ -383,10 +384,7 @@ $(function(){
 		const r_name = urlParams.get('roomName');
 		const u_name = urlParams.get('userName');
 		console.log(u_name,r_name);
-		socket.emit("client_to_server_join", {value : r_name , name : u_name});
-		socket.emit("client_to_server_addPlayer", {value : u_name});
-		setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ... */
-
+		afterAddPlayer(r_name , u_name);
 
 		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
         $("#formInline").submit(function(e) {
@@ -399,19 +397,15 @@ $(function(){
             e.preventDefault();
         });
 
-		function afterAddPlayer() {
-    		console.log(isSameName);
-    		if (isSameName){
-            	var entryMessage = name + "さんが入室しました。";
-                // C05. client_to_server_broadcastイベント・データを送信する
-                socket.emit("client_to_server_broadcast", {value : entryMessage});
-                // C06. client_to_server_personalイベント・データを送信する
-                socket.emit("client_to_server_personal", /*{value : name}*/"");
-                changeLabel();
-            } else {
-            	alert('その名前は既に使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
-            }
-        }
+		function afterAddPlayer(roomName , userName) {
+			socket.emit("client_to_server_join", {value : roomName , name : userName});
+			socket.emit("client_to_server_addPlayer", {value : userName});
+			var entryMessage = userName + "さんが入室しました。";
+			// C05. client_to_server_broadcastイベント・データを送信する
+			socket.emit("client_to_server_broadcast", {value : entryMessage});
+			// C06. client_to_server_personalイベント・データを送信する
+			socket.emit("client_to_server_personal", /*{value : name}*/"");
+		}
 
 		//追加項目
 		//--------------------↑ここまでｷﾔﾏ
