@@ -20,7 +20,7 @@ html(lang='ja')
             | 0秒
         #otetukiTimer
           div  お手付きタイマー
-          div  お題
+          //- div  お題
         //- select#themeName
         //-   option(value='' hidden='') お題選択
         //-   option(value='sample') 初級
@@ -62,6 +62,9 @@ html(lang='ja')
         // 2：ここまで
         div(style='background-color:#fff;overflow-y:scroll;width:300px; height:280px')
           ul#chat(style='list-style:none;')
+        form#formInline.form-inline
+          | コメント：
+          input#msgForm.form-control(type='text' placeholder='coment')
     // カラーピッカーここから
     .container
       input.pickr(type='text')

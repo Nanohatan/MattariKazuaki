@@ -261,7 +261,7 @@ $(function(){
 			input1.setAttribute("class" , "input1");
 			input1.setAttribute("id" , 'input11');
 			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
-			const top = buttonPosition.top +30;
+			const top = buttonPosition.top + 100;
 			console.log();
 			input1.style.top = top + 'px'
 			const left = buttonPosition.left -buttonPosition.width-120;
@@ -312,7 +312,7 @@ $(function(){
 		console.log(input1);
 		if (input1){
 			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
-			const top = buttonPosition.top +30;
+			const top = buttonPosition.top + 100;
 			console.log();
 			input1.style.top = top + 'px'
 			const left = buttonPosition.left - buttonPosition.width -120;
@@ -448,7 +448,6 @@ $(function(){
         function appendMsg(text) {
 			$(text).prependTo("#chat");
             //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
-
 		}
 
 		const urlParams = new URLSearchParams(window.location.search);
@@ -465,7 +464,6 @@ $(function(){
 			var message = $("#msgForm").val();
             var selectRoom = $("#rooms").val();
             $("#msgForm").val('');
-
             message = "[" + u_name + "]: " + message;
             // C03. client_to_serverイベント・データを送信する
             socket.emit("client_to_server", {value : message , isMsg : true});
@@ -475,14 +473,13 @@ $(function(){
 		function afterAddPlayer() {
     		console.log(isSameName);
     		if (isSameName){
-            	var entryMessage = name + "さんが入室しました。";
+            	var entryMessage = u_name + "さんが入室しました。";
                 // C05. client_to_server_broadcastイベント・データを送信する
                 socket.emit("client_to_server_broadcast", {value : entryMessage});
                 // C06. client_to_server_personalイベント・データを送信する
                 socket.emit("client_to_server_personal", /*{value : name}*/"");
-                changeLabel();
+                //changeLabel();
             } else {
-
             	alert('その名前は既に使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
             }
 		}

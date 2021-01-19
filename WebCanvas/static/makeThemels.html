@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<title>webCanvas</title>
+
+		<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<!-- <link rel="stylesheet" type="text/css" href="./css/slider.css"> -->
+		<!-- <link rel="stylesheet" type="text/css" href="./css/webCanvasStyle.css"> -->
+
+	</head>
+	<body>
+
+    <h1>お題リスト作成</h1>
+
+    <font size="5" color="red">お題タイトル入力</font>
+    <ul class="list">
+        <li>1文字以上30文字以内</li>
+    </ul>
+    <form id=confirm>
+        タイトル：
+        <input type="text" id="list_name" maxlength="30" data-minlength="1" class="form-control"/>
+    <br>
+
+    <font size="5" color="red">収録ワード入力</font>
+    <ul class="list">
+        <li>ひらがなのみ</li>
+        <li>ワードは改行で区切る</li>
+        <li>5ワード以上</li>
+    </ul>
+        <textarea id="list_words" data-maxlength="5000" data-minlength="5" data-mincount="5" data-maxcount="500" class="form-control"></textarea>
+        <br>
+        <button type="submit" class="btn btn-info">登録</button>
+    </form>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-slider.js"></script>
+    <script type="text/javascript" src="./socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="./js/make_themels.js"></script>
+
+    </body>
+</html>
