@@ -224,7 +224,6 @@ io.sockets.on('connection', function(socket) {
 
 	//タイマーの起動
 	socket.on("startTimer_fromClient",function(data){
-
         startTimer();
         gettheme();
 		io.to(room).emit("startTimer_fromServer","");
@@ -264,24 +263,19 @@ io.sockets.on('connection', function(socket) {
 
 	function gettheme(){
         const client = require("./db_client").pg_client()
-        // var themeList = [];
 
 		client.connect()
 			.then(() => console.log("Connected successfuly"))
-			.then(() => client.query("select word from sample_table order by timestamp desc"))
+            .then(() => client.query("select word from sample_table order by timestamp desc"))
 			.then(function (results) {
                 console.table(results.rows)
                 for(var item of results.rows){
                     console.log(item.word + "append to themeList");
                     theme.push(item.word);
-                    // themeList.push(item.word);
                 }
-                // console.log("themeList:" + themeList);
 			})
             .catch((e => console.log(e)))
             .catch((() => client.end()))
-        
-		// return themeList;
 	}
 
     //タイマー関数

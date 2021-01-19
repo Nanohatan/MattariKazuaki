@@ -9,5 +9,5 @@ RUN npm install pug
 
 RUN npm install pg
 
-WORKDIR src
+WORKDIR src/WebCanvas
 CMD node app
