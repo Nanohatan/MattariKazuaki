@@ -67,7 +67,7 @@
 
     function getNames( roomName , list){
         console.log(roomName);
-        const client = require("./db_client").pg_client()
+        const client = require("../../db_client").pg_client()
         client.connect()
             .then(() => console.log("Connected successfuly"))
             .then(() => client.query("select names from " + roomName ))
