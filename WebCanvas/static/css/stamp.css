@@ -1,6 +1,7 @@
 /*スタンプ画面の枠作成*/
 .input1 {
 /*位置，サイズ，枠などの指定*/
+    transform: translate(180%, -215%);
     position: absolute ;
     left: 200px ;
     padding: 10px;
@@ -9,7 +10,6 @@
     width: 320px ;
     height: 200px ;
     background-color: #ffffff;
-/*機能？設定*/
     display: flex;
     overflow: hidden;
 }
@@ -56,4 +56,48 @@
 
 .stampImage{
     width:130px;
+}
+
+main {
+    padding: 10px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #aaa;
+    margin: 30px 0;
+    border-radius: 4px;
+}
+
+main div div{
+    display: flex;
+    padding:5px
+}
+
+main div input {
+    max-width: 50px;
+    padding: 0px 0px;
+}
+
+hr{
+    margin-top:5px;
+    margin-bottom:5px;
+}
+
+.kakite{
+    background-color: rgba(255, 156, 224, 0.5);
+}
+
+.stmp_btn{
+    background: url("../img/test1.png") no-repeat;
+}
+
+.stmp_btn a{
+    width:30px;
+    height:30px;
+    background: url("./img/test1.png") no-repeat;
+    display: block;
+    text-indent: -9999px;
+}
+
+.stmp_btn a:hover {
+    background-image: url("./img/test2.png");
 }

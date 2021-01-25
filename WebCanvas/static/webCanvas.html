@@ -9,79 +9,99 @@
 		<link rel="stylesheet" type="text/css" href="./css/webCanvasStyle.css">
 		<link rel="stylesheet" type="text/css" href="./css/stamp.css">
 
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+
 	</head>
 	<body id = "allBody">
 <!--1：ここから追加-->
 	<div class="row">
-		<div id="odai" class="col-sm-12 col-md-8">
-			<h2 style="text-align:center"><font size="7">ゲーム開始待ち…</font></td>
+		<div class="col-sm-12 col-md-7">
+			<div id="odai">
+				<h2 style="text-align:center"><font size="7">ゲーム開始待ち…</font></td>
+			</div>
+			<form id="gameReset" style="display:none; text-align: center; "><button type="submit" class="btn btn-info">はじめから</button></form>
 		</div>
-		<div class="col-sm-12 col-md-4">
+		<div class="col-sm-12 col-md-1">
 			<div id="badAnswerTimer">
 				<h2>0秒</td>
 			</div>
-		<div id = "otetukiTimer">
-			<div> お手付きタイマー</div>
-		</div>
 			<form id="startTimerForm">
-				<input id="startTimer" type="submit" class="btn btn-dark" value="Game Start" disabled = "false">
+				<input id="startTimer" type="submit" class="btn btn-secondary" value="スタート" disabled = "false">
 			</form>
 			<form id="stopTimerForm">
-				<input id="stopTimer" type="submit" class="btn btn-dark" value="Stop Timer" disabled = "false" >
+				<input id="stopTimer" type="submit" class="btn btn-secondary" value="ストップ" disabled = "false" >
 			</form>
 		</div>
+
+		<div class="col-sm-12 col-md-4">
+			<form id = "setGameTimes">
+				<main>
+				<div>
+					<div>ラウンド数：<input type="number" class="form-control" id="gameCount" style="padding: 1px 2px; height: 25px;">回</div>
+					<div>制限時間：<input type="number" class="form-control" id="drowTime" style="padding: 1px 2px; height: 25px;">秒</div>
+				</div>
+				<div>
+					<div>インターバル：<input type="number" class="form-control" id="intervalTime" style="padding: 1px 2px; height: 25px;">秒</div>
+
+					<div>お手付き時間：<input type="number" class="form-control" id="nowBadTime" style="padding: 1px 2px; height: 25px;">秒</div>
+				</div>
+					<button type="submit" class="btn btn-success">send</button>
+				</main>
+			</form>
+		</div>
+
 	</div>
 <!-- 1：ここまで -->
-	<div class="row">
+	<div class="row" style="padding: 15px;">
 		<div class="col-sm-12 col-md-8">
 			<canvas width="640" height="360" id="mycanvas">Canvasに対応した最新のブラウザをお使いください</canvas>
 		</div>
-		<!-- <form id="timerStart">
-			<input type="button" value="カウント開始" id="startcount" onclick="startShowing();">
-		</form>
-		<form id="timerStop">
-			<input type="button" value="カウント停止" id="endcount" onclick="stopShowing();">
-		</form>
-		<p id="PassageArea">(ここにカウントが表示されます)</p> -->
-		<div class="col-sm-12 col-md-4">
-		<!-- 
-		多分いらない... 元のメッセージとか名前
-			<form id="send">
-				<input type="text" id="name" class="form-control" placeholder="name" required>
-				<input type="text" id="msg" class="form-control" placeholder="message" required>
-				<button type="submit" class="btn btn-primary btn-default">Send!</button>
-			</form>
-			-->
+		<div class="col-sm-12 col-md-4" style="border: 1px solid #aaa; border-radius: 4px; padding: 5px 10px;">
 <!-- 2：ここから追加 -->
-			<form id ="answer">
-				<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" required>
-			</form>
-			<form id = "stampButton">
-				<button id="stmB" type="submit" class="btn btn-success">stamp</button>
-			</form>
-			<ul id="players" style="list-style:none;">
-				<li> プレイヤー一覧 </li>
-			</ul>
-<!-- 2：ここまで -->
-			<div style="background-color:#fff;overflow-y:scroll;width:300px; height:280px">
-				<ul id="chat" style="list-style:none;"></ul>
+			<div style="list-style:none; padding:10px;">
+				<ul id="players">
+					<li> プレイヤー一覧 </li>
+				</ul>
+	<!-- 2：ここまで -->
+				<div style="background-color:#fff;overflow-y:scroll;width:300px; height:280px; border-radius: 4px; ">
+					<ul id="chat" style="list-style:none; padding:5px 30px;"></ul>
+				</div>
+			</div>
+			<div style="border: 1px solid #aaa; border-radius: 4px; padding: 10px;">
+				<div id = "otetukiTimer">
+					<div> お手付きタイマー</div>
+				</div>
+				<div style="display: flex;">
+					<div>解答：</div>
+					<form id ="answer" style="display: flex;">
+						<input type="text" id="userAnswer" class="form-control" placeholder="say answer!!" style="width:230px;">
+					</form>
+				</div>
+					<div style="display: flex;">
+						<div>コメント：</div>
+						<form id ="formInline">
+							<input type="text" class="form-control" id="msgForm" placeholder="coment" style="width:200px;">
+						</form>
+						<form id = "stampButton" style="padding:0px 5px;">
+							<input id="stmB" class="stmp_btn" type="image" src="./img/test2.png" style="width:25px; height:25px; margin: 5px 0;" >
+						</form>
+					</div>
 			</div>
 		</div>
 	</div>
 
+	<!-- カラーピッカーここから -->
+	<div class="container">
+		<input type="text" class="pickr">
+	</div>
+	  <!-- カラーピッカーここまで -->
+
 	<div class="row">
 		<div class="col-sm-12 col-md-9">
+			
 			<div class="col-sm-3 col-md-1">
 				<canvas width="50" height="50" id="colorPrev" class="prev"></canvas>
 			</div>
-			<div class="col-sm-9 col-md-5">
-				<ul style="list-style:none;">
-					<li><label>R:	<input id="colorR" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
-					<li><label>G:	<input id="colorG" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
-					<li><label>B:	<input id="colorB" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
-				</ul>
-			</div>
-
 			<div class="col-sm-3 col-md-1">
 				<canvas width="50" height="50" id="widthPrev" class="prev"></canvas>
 			</div>
@@ -89,18 +109,9 @@
 				<label>Pen size:	<input id="penWidth" class="sliders" type="text" data-slider-max="25" data-slider-min="1" data-slider-value="1" ></label>
 			</div>
 		</div>
-<!-- 		<select id="penColor">
-			<option value="black">黒</option>
-			<option value="red">赤</option>
-			<option value="blue">青</option>
-			<option value="white">白</option>
-		</select>
-		<select id="penWidth">
-			<option value="1">細</option>
-			<option value="3">並</option>
-			<option value="5">太</option>
-		</select> -->
 	</div>
+
+	
 	<div>
 		<div class="col-md-6">
 			<button type="button" id="erase" class="btn btn-primary btn-lg">消去</button>
@@ -111,25 +122,8 @@
 	</div>
 	<div id="gallery"></div>
 
-	<div class="container">
-        <h1>WebSocket-Chat</h1>
-        <form class="form-inline" id ="formInline">
-            <div class="form-group">
-                <label class="roomLabel" for="rooms">部屋：</label>
-                <select class="form-control" id="rooms">
-                    <option value="room01">部屋01</option>
-                    <option value="room02">部屋02</option>
-                </select>
-                <label class="nameLabel" for="msgForm">名前：</label>
-                <input type="text" class="form-control" id="msgForm">
-            </div>
-            <!--この子いらないのでは？？
-            <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
-            -->
-        </form>
-        <div id="chatLogs"></div>
-    </div>
-    
+	<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
@@ -137,6 +131,9 @@
 	<script type="text/javascript" src="./js/bootstrap-slider.js"></script>
 	<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="./js/webCanvas.js"></script>
-	
+
+
+	<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+
 	</body>
 </html>
