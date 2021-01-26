@@ -16,8 +16,12 @@ docker-compose down --volume --remove-orphans
 ```
 でコンテナを消す。
 
+ディレクトリで
 ```
-docker image list
-docker rmi <IMAGE ID>
+docker-compose exec database /bin/bash
 ```
-で定期的にイメージ確認して消すのがいいかも。ストレージくわれます。
+コンテナ内で
+```
+psql -U postgres -d jikken_db
+```
+でDBの中に入れます。

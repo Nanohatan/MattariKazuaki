@@ -20,12 +20,11 @@ html(lang='ja')
             | 0秒
         #otetukiTimer
           div  お手付きタイマー
-          div  お題
-        //- select#themeName
-        //-   option(value='' hidden='') お題選択
-        //-   option(value='sample') 初級
-        //-   option(value='normal') 中級
-        //-   option(value='hard') 上級
+        select#themeName.form-control
+          option(value='' hidden='') お題を選んでね
+          option(value='easy') 初級
+          option(value='normal') 中級
+          option(value='hard') 上級
         form#startTimerForm
           input#startTimer.btn.btn-dark(type='submit' value='Game Start' disabled='false')
         form#stopTimerForm
