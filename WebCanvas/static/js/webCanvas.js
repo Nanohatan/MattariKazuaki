@@ -326,15 +326,12 @@ $(function(){
 		document.getElementById('input11').remove();
 		document.getElementById('overImg').remove();
 	};
-	
-	$("#selectTheme").submit(function(e){
-		e.preventDefault();
-		socket.emit("gettheme", data);
-	});	
 
 	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
-		socket.emit("startTimer_fromClient",'');
+		var themeName = document.getElementById("themeName").value;
+		console.log("お題タイトル：" + themeName);
+		socket.emit("startTimer_fromClient",themeName);
 	});
 
 	$("#stopTimerForm").submit(function(e){

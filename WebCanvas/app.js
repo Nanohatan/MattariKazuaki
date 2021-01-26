@@ -118,9 +118,9 @@ io.sockets.on('connection', function(socket) {
 
     //画像サイズ指定
     function resizeImagePercent(id , resizeRate ) {
-   var resizeImg = document.getElementById(id);
-   resizeImg.width  = resizeImg.naturalWidth  * resizeRate;
-   resizeImg.height = resizeImg.naturalHeight * resizeRate;
+        var resizeImg = document.getElementById(id);
+        resizeImg.width  = resizeImg.naturalWidth  * resizeRate;
+        resizeImg.height = resizeImg.naturalHeight * resizeRate;
 }
 
     // S07. client_to_server_broadcastイベント・データを受信し、送信元以外に送信する
@@ -224,14 +224,15 @@ io.sockets.on('connection', function(socket) {
 
 	//タイマーの起動
 	socket.on("startTimer_fromClient",function(data){
+        var themeName = data;
+        console.log("お題タイトル(app側)：" + themeName);
         startTimer();
-        gettheme();
+        gettheme(themeName);
 		io.to(room).emit("startTimer_fromServer","");
 	});
 
 	//タイマーの停止
 	socket.on("stopTimer_fromClient",function(data){
-
         stopTimer();
         theme = [];
 		io.to(room).emit("stopTimer_fromServer","");
@@ -245,8 +246,6 @@ io.sockets.on('connection', function(socket) {
         var nameKeyList = Object.keys(nameDict[room]);
 		kakite = nameKeyList[Math.floor( Math.random() * nameKeyList.length)];
         odaiList = theme;
-        // odaiList = gettheme();
-        // console.log("odaiList:" + odaiList);
     	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
     	console.log(odai);
     	console.log(nameDict);
@@ -261,12 +260,13 @@ io.sockets.on('connection', function(socket) {
     	});
     }
 
-	function gettheme(){
+	function gettheme(themeName){
+        var themeName = themeName;
         const client = require("./db_client").pg_client()
 
 		client.connect()
 			.then(() => console.log("Connected successfuly"))
-            .then(() => client.query("select word from sample_table order by timestamp desc"))
+            .then(() => client.query("select word from " + themeName + " order by timestamp desc"))
 			.then(function (results) {
                 console.table(results.rows)
                 for(var item of results.rows){
