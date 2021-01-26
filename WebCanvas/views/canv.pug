@@ -62,6 +62,11 @@ html(lang='ja')
         div(style='border: 1px solid #aaa; border-radius: 4px; padding: 10px;')
           #otetukiTimer
             div  お手付きタイマー
+          select#themeName.form-control
+            option(value='' hidden='') お題を選んでね
+            option(value='easy') 初級
+            option(value='normal') 中級
+            option(value='hard') 上級
           div(style='display: flex;')
             div 解答：
             form#answer(style='display: flex;')
@@ -80,6 +85,14 @@ html(lang='ja')
       .col-sm-12.col-md-9
         .col-sm-3.col-md-1
           canvas#colorPrev.prev(width='50' height='50')
+        //
+          <div class="col-sm-9 col-md-5">
+          <ul style="list-style:none;">
+          <li><label>R:	<input id="colorR" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
+          <li><label>G:	<input id="colorG" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
+          <li><label>B:	<input id="colorB" class="sliders" type="text" data-slider-max="255"　data-slider-min="0" data-slider-value="0" ></label></li>
+          </ul>
+          </div>
         .col-sm-3.col-md-1
           canvas#widthPrev.prev(width='50' height='50')
         .col-sm-9.col-md-5
@@ -94,6 +107,24 @@ html(lang='ja')
     #gallery
     a.twitter-share-button(href='https://twitter.com/share?ref_src=twsrc%5Etfw' data-show-count='false') Tweet
     script(async='' src='https://platform.twitter.com/widgets.js' charset='utf-8')
+    //
+      <div class="container">
+      <h1>WebSocket-Chat</h1>
+      <form class="form-inline" id ="formInline">
+      <div class="form-group">
+      <label class="roomLabel" for="rooms">部屋：</label>
+      <select class="form-control" id="rooms">
+      <option value="room01">部屋01</option>
+      <option value="room02">部屋02</option>
+      </select>
+      <label class="nameLabel" for="msgForm">名前：</label>
+      <input type="text" class="form-control" id="msgForm">
+      </div>
+      <!--この子いらないのでは？？
+      <button type="button" class="btn btn-primary" id="sendButton" onclick="location.href='/canv_and_chat' ">入室</button>
+      </form>
+      <div id="chatLogs"></div>
+      </div>
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js')
     link(rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css')
     script(src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js')

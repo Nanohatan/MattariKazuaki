@@ -92,8 +92,8 @@ $(function(){
 	/*
 	ペンの設定の反映
 	*/
-	
-		//ここからカラーピッカー 
+
+	//ここからカラーピッカー 
 	const inputElement = document.querySelector('.pickr');
 
 	const pickr = new Pickr({
@@ -142,15 +142,16 @@ $(function(){
 		pickr.hide();
 	})
 
-
 	//ここまでカラーピッカー 
-	
+
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
-		ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
+		//ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
+		ctxColorPrev.fillStyle = inputElement.value;
 		ctxColorPrev.fillRect(0,0,50,50);
 
-		ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
+		//ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
+		ctx.strokeStyle = inputElement.value;
 	}
 	/*
 	$("#colorR").slider({
@@ -233,6 +234,7 @@ $(function(){
 		});
 		$("#userAnswer").val('');
 	});
+
 
 	//お手付きの処理
     var nowtime ;
@@ -330,7 +332,9 @@ $(function(){
 
 	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
-		socket.emit("startTimer_fromClient",'');
+		var themeName = document.getElementById("themeName").value;
+		console.log("お題タイトル：" + themeName);
+		socket.emit("startTimer_fromClient",themeName);
 	});
 
 	$("#stopTimerForm").submit(function(e){
@@ -340,7 +344,9 @@ $(function(){
 
 	//お題や描きてなどのチャットメッセージ生成
 	socket.on("send_odaiMsg_fromServer",function(data){
+
 		if (data.name == u_name ){
+
 			var odaiLog = "お題「" + data.odai + "」！！";
 		} else {
 			var odaiLog = "描く人"+ data.name +"さん";
@@ -500,7 +506,5 @@ $(function(){
 			// C06. client_to_server_personalイベント・データを送信する
 			socket.emit("client_to_server_personal", /*{value : name}*/"");
 		}
-
-		//追加項目
 		//--------------------↑ここまでｷﾔﾏ
 	});

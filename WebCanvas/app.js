@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
 
 app.get('/canv_and_chat', (req, res) => {
     res.sendFile(__dirname+'/static/webCanvas.html');
+
 });
 
 app.get('/canv_only', (req, res) => {
@@ -41,6 +42,7 @@ io.sockets.on('connection', function(socket) {
     var room = '';
     var name = '';
 
+
     socket.on('client_to_server_join', function(data) {
         room = data.value;
         socket.join(room);
@@ -61,11 +63,11 @@ io.sockets.on('connection', function(socket) {
         socket.on('drawing', (data) => socket.broadcast.to(room).emit('drawing', data));
 
 
+
     // roomへの入室は、「socket.join(room名)」
     socket.on('client_to_server_join', function(data) {
         room = data.value;
         socket.join(room);
-        //io.to(room).emit('greeting',data.name+"参加")
         //ルーム毎にプレイヤー名とチャットログのdict作成
         if ( !(room in nameDict)){
             timerDict[room] = [];
@@ -84,6 +86,7 @@ io.sockets.on('connection', function(socket) {
         } else {
             var text =  '<li><div> [' + data.value[0] + ']: </div><img class="stampImage" src="./img/' + data.value[1] + '.png" alt="" }></img></li><hr>' ;
         }
+
         msgDict[room].push(text);
         console.log(msgDict[room]);
         io.to(room).emit('server_to_client', {value : text });
@@ -98,6 +101,9 @@ io.sockets.on('connection', function(socket) {
     // S08. client_to_server_personalイベント・データを受信し、送信元のみに送信する
     socket.on('client_to_server_personal', function(data) {
         io.to(socket.id).emit('fix_log', {value :msgDict[room] , canvasDict : canvasDict[room]});
+        var id = socket.id;
+        //ログ修復
+        io.to(id).emit('fix_log', {value :msgDict[room]});
     });
 
     //Sアユム_入室処理
@@ -179,8 +185,10 @@ io.sockets.on('connection', function(socket) {
 
 	//タイマーの起動
 	socket.on("startTimer_fromClient",function(data){
+        var themeName = data;
+        console.log("お題タイトル(app側)：" + themeName);
         startTimer();
-        gettheme();
+        gettheme(themeName);
 		io.to(room).emit("startTimer_fromServer","");
 	});
 
@@ -198,8 +206,6 @@ io.sockets.on('connection', function(socket) {
         io.to(room).emit("erase_fromServer","");
         canvasDict[room] = [];
         odaiList = theme;
-        // odaiList = gettheme();
-        // console.log("odaiList:" + odaiList);
     	odai = odaiList[Math.floor( Math.random() * odaiList.length )];
     	console.log(odai);
     	io.to(room).emit("send_odai_fromServer",{
@@ -214,25 +220,22 @@ io.sockets.on('connection', function(socket) {
     	});
     }
 
-	function gettheme(){
+	function gettheme(themeName){
+        var themeName = themeName;
         const client = require("./db_client").pg_client()
-        // var themeList = [];
 
 		client.connect()
 			.then(() => console.log("Connected successfuly"))
-			.then(() => client.query("select word from sample_table order by timestamp desc"))
+            .then(() => client.query("select word from " + themeName + " order by timestamp desc"))
 			.then(function (results) {
                 console.table(results.rows)
                 for(var item of results.rows){
                     console.log(item.word + "append to themeList");
                     theme.push(item.word);
-                    // themeList.push(item.word);
                 }
-                // console.log("themeList:" + themeList);
 			})
             .catch((e => console.log(e)))
             .catch((() => client.end()))
-		// return themeList;
 	}
 
     //ラウンドとかの変数セット
@@ -370,5 +373,4 @@ io.sockets.on('connection', function(socket) {
             .catch((e => console.log(e)))
             .catch((() => client.end()))
     }
-
 });
