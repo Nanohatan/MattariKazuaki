@@ -1,9 +1,8 @@
 /*スタンプ画面の枠作成*/
 .input1 {
 /*位置，サイズ，枠などの指定*/
-    transform: translate(180%, -215%);
+    transform: translate(245%, -252%);
     position: absolute ;
-    left: 200px ;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid rgba(0,0,0,.08);

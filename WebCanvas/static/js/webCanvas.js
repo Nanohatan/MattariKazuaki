@@ -235,7 +235,6 @@ $(function(){
 		$("#userAnswer").val('');
 	});
 
-
 	//お手付きの処理
     var nowtime ;
     var nowBadTime;
@@ -332,9 +331,7 @@ $(function(){
 
 	$("#startTimerForm").submit(function(e){
 		e.preventDefault();
-		var themeName = document.getElementById("themeName").value;
-		console.log("お題タイトル：" + themeName);
-		socket.emit("startTimer_fromClient",themeName);
+		socket.emit("startTimer_fromClient",'');
 	});
 
 	$("#stopTimerForm").submit(function(e){
@@ -404,13 +401,18 @@ $(function(){
 		console.log(parseInt($("#gameCount").val() ,10));
 		if (ismaster){
 			if ( !(isNaN(parseInt($("#gameCount").val() ,10))) && !(isNaN(parseInt($("#drowTime").val() ,10))) && !(isNaN(parseInt($("#intervalTime").val() ,10))) && !(isNaN(parseInt($("#nowBadTime").val()))) ) {
+				var themeName = document.getElementById("themeName").value;
+				console.log("お題タイトル：" + themeName);
 				socket.emit("set_game_time" , {
 					gameCount : parseInt($("#gameCount").val() ,10) ,
 					drowTime : parseInt($("#drowTime").val() ,10) ,
 					intervalTime : parseInt($("#intervalTime").val() ,10) ,
-					nowBadTime : parseInt($("#nowBadTime").val() ,10) 
+					nowBadTime : parseInt($("#nowBadTime").val() ,10) ,
+					themeName : themeName
 				});
 				document.getElementById("startTimer").removeAttribute("disabled");
+			}else{
+				alert('全部の設定を決めてから決定を押してね…I˙꒳​˙)');
 			}
 		} else{
 			alert('ゲーム設定はマスターしかできません( ‘д‘⊂彡☆))Д´) ﾊﾟｰﾝw');
@@ -420,7 +422,7 @@ $(function(){
 
 	//ゲームの初期値色々の表示
 	socket.on("setGameTimes_fromServer",function(data){
-		document.getElementById("setGameTimes").innerHTML = '<main><div><div>ラウンド数：' + data.gameCount + '回</div><div>制限時間：' + data.drowTime +'秒</div></div><div><div>インターバル：' + data.intervalTime + '秒</div><div>お手付き時間：' + data.nowBadTime + '秒</div></div></main>';
+		document.getElementById("setGameTimes").innerHTML = '<main><div><div>ラウンド数：' + data.gameCount + '回</div><div>制限時間：' + data.drowTime +'秒</div></div><div><div>インターバル：' + data.intervalTime + '秒</div><div>お手付き時間：' + data.nowBadTime + '秒</div></div><div style="text-align: center;"><div>お題：' + data.themeName + '</div></div></main>';
 		nowBadTime = data.nowBadTime;
 		nowtime = data.nowBadTime;
 	});

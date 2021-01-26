@@ -185,10 +185,7 @@ io.sockets.on('connection', function(socket) {
 
 	//タイマーの起動
 	socket.on("startTimer_fromClient",function(data){
-        var themeName = data;
-        console.log("お題タイトル(app側)：" + themeName);
         startTimer();
-        gettheme(themeName);
 		io.to(room).emit("startTimer_fromServer","");
 	});
 
@@ -246,11 +243,15 @@ io.sockets.on('connection', function(socket) {
         gameCount = data.gameCount;
         drowTime = data.drowTime;
         intervalTime = data.intervalTime;
+        var themeName = data.themeName;
+        console.log("お題タイトル(app側)：" + themeName);
+        gettheme(themeName);
         io.to(room).emit("setGameTimes_fromServer" , {
             gameCount : data.gameCount,
             drowTime : data.drowTime,
             intervalTime : data.intervalTime,
-            nowBadTime : data.nowBadTime
+            nowBadTime : data.nowBadTime,
+            themeName : data.themeName
         });
 	});
 

@@ -46,6 +46,11 @@ html(lang='ja')
                 | お手付き時間：
                 input#nowBadTime.form-control(type='number' style='padding: 1px 2px; height: 25px;')
                 | 秒
+            select#themeName.form-control(style='width: 200px;')
+                option(value='normal' hidden='') お題を選んでね
+                option(value='easy') 初級
+                option(value='normal') 中級
+                option(value='hard') 上級
             button.btn.btn-success(type='submit') send
     // 1：ここまで
     .row(style='padding: 15px;')
@@ -62,11 +67,6 @@ html(lang='ja')
         div(style='border: 1px solid #aaa; border-radius: 4px; padding: 10px;')
           #otetukiTimer
             div  お手付きタイマー
-          select#themeName.form-control
-            option(value='' hidden='') お題を選んでね
-            option(value='easy') 初級
-            option(value='normal') 中級
-            option(value='hard') 上級
           div(style='display: flex;')
             div 解答：
             form#answer(style='display: flex;')
