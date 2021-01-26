@@ -23,10 +23,12 @@ $(function(){
 	マウスがCanvas内でクリックされている間だけ描画する
 	*/
 	$("#mycanvas").mousedown(function(e){
-		isDrowing = true;
-
-		startX = e.pageX - $(this).offset().left - borderWidth;
-		startY = e.pageY - $(this).offset().top - borderWidth;
+		if( kakite == u_name || kakite == "everyone" ){
+			isDrowing = true;
+	
+			startX = e.pageX - $(this).offset().left - borderWidth;
+			startY = e.pageY - $(this).offset().top - borderWidth;
+		}
 	})
 	.mousemove(function(e){
 		if(!isDrowing) return;
@@ -58,8 +60,13 @@ $(function(){
 	.mouseleave(function(){
 		isDrowing = false;
 	});
+	
 	//サーバーから転送されてきた描画情報を反映
 	socket.on("draw_line_fromServer",function(data){
+		draw_line(data);
+	});
+	
+	function draw_line(data){
 		ctx.strokeStyle = data.style;
 		ctx.lineWidth = data.width;
 
@@ -71,7 +78,8 @@ $(function(){
 		//ctx.strokeStyle = "rgb("+r+","+g+","+b+")";
 		ctx.strokeStyle = inputElement.value;
 		ctx.lineWidth = pW;
-	});
+	}
+	
 	//全消し
 	$("#erase").click(function(){
 		ctx.clearRect(0,0, canvas.width, canvas.height);
@@ -84,7 +92,6 @@ $(function(){
 	/*
 	ペンの設定の反映
 	*/
-
 
 	//ここからカラーピッカー 
 	const inputElement = document.querySelector('.pickr');
@@ -135,9 +142,8 @@ $(function(){
 		pickr.hide();
 	})
 
-
 	//ここまでカラーピッカー 
-	  
+
 	function RGBfunc(){
 		ctxColorPrev.clearRect(0,0, 50, 50);
 		//ctxColorPrev.fillStyle = "rgb("+r+","+g+","+b+")";
@@ -211,27 +217,28 @@ $(function(){
 		var answer = $("#userAnswer").val();
 		if (answer.includes(odai) ){ //文字列に含まれるかどうか？
 			answer =  "「" + answer + "」は 正解　ｾｲｶｲヾﾉ｡ÒㅅÓ\)ﾉｼ\"";
-			nowtime = 0;
 			odai = "まだ決まってないよ";
+			var torf = true;
 		} else {
 			answer = "「" + answer + "」は 不正解　ﾑﾘﾀﾞﾅ(・×・)";
 			//ここでお手付きタイマースタート
 			//ユーザー一人一人に対しての処理なので，emitいらないかも
 			document.getElementById("userAnswer").setAttribute("disabled" , true);
 			startOtetukiTimer();
+			var torf = false;
 		}
 		socket.emit("send_userAnswer_fromClient",{
 			userAnswer: answer,
-
-			answerName : u_name
-
+			answerName : u_name,
+			isAnswer : torf
 		});
 		$("#userAnswer").val('');
 	});
 
 
 	//お手付きの処理
-    var nowtime = 10;
+    var nowtime ;
+    var nowBadTime;
     var timerText = "<h2>";
     var badAnswerTimer;
     function time(){
@@ -239,7 +246,7 @@ $(function(){
     	if (nowtime > 0){
     		nowtime = nowtime - 1;
     	} else {
-    		nowtime = 10 ;
+    		nowtime = nowBadTime;
     		clearInterval(badAnswerTimer)
     		document.getElementById("userAnswer").removeAttribute("disabled");
     		document.getElementById("otetukiTimer").innerHTML = "<div>" + 'お手付きタイマー' + "</div>";
@@ -253,20 +260,18 @@ $(function(){
 
 	//スタンプ仮
 	$("#stampButton").submit(function(e){
+		console.log("hogehoge");
 		if (!document.getElementById('input1')){
 			var list = ["ok" , "no" , "kuyashii" ,"koronnbia" , "wakarann" , "tyottomatte" ,"wakatta" , "arigato" , "otukaresama" , "baibai" , "gomen" , "oko" , "irassyai" , "hazukashi" , "omedetou" , "ohayou" , "ne-" ,"hai" , "warau" , "-ko" , "oyasumi"]; //ここデータベースにする？予定はスタンプの名前一覧
 			e.preventDefault();
 			const div = document.getElementById("allBody");//全部の元id
+			const input0 = document.createElement("div");//装飾
+			input0.setAttribute("class" , "input0");
 			const input1 = document.createElement("div");//追加する箱
 			input1.setAttribute("class" , "input1");
 			input1.setAttribute("id" , 'input11');
-			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
-			const top = buttonPosition.top + 100;
-			console.log();
-			input1.style.top = top + 'px'
-			const left = buttonPosition.left -buttonPosition.width-120;
-			input1.style.left = left + 'px'
-			div.appendChild(input1);
+			div.appendChild(input0);
+			input0.appendChild(input1);
 			//マウスオーバーしているのを拡大表示
 			const overImg = document.createElement("img");
 			overImg.setAttribute("class" , "overImg");
@@ -305,26 +310,24 @@ $(function(){
 		console.log(stampID);
 	}
 
-	//画面がリサイズされたらスタンプ選択の位置を変更
-	$(window).resize(function() {
-		const input1 = document.getElementById('input11');
-		const overImg = document.getElementById("overImg");
-		console.log(input1);
-		if (input1){
-			const buttonPosition = document.getElementById('stmB').getBoundingClientRect();
-			const top = buttonPosition.top + 100;
-			console.log();
-			input1.style.top = top + 'px'
-			const left = buttonPosition.left - buttonPosition.width -120;
-			input1.style.left = left + 'px'
-			console.log("hohohoho");
+	//もういっかい遊べるドン
+	$("#gameReset").submit(function(e) {
+		e.preventDefault();
+		if(ismaster){
+			e.preventDefault();
+			socket.emit("stopTimer_fromClient",'');
+			socket.emit("game_reset" , '' );
+		}else{
+			alert("マスターしか押せません|ﾉ･ω･)ﾉ⌒(*･-･)");
 		}
 	});
 
 	//画面の他の場所をクリックされたら，スタンプ選択を消す
 	document.onclick = function(){
-		document.getElementById('input11').remove();
-		document.getElementById('overImg').remove();
+		try{
+			document.getElementById('input11').remove();
+			document.getElementById('overImg').remove();
+		}catch(e){};
 	};
 
 	$("#startTimerForm").submit(function(e){
@@ -348,20 +351,22 @@ $(function(){
 		} else {
 			var odaiLog = "描く人"+ data.name +"さん";
 		}
+		$("<hr>").prependTo("#chat");
 		$($("<div>").text(odaiLog)).prependTo("#chat");
+		document.getElementsByName(data.name)[0].setAttribute("class" , "kakite");
 	});
 
-	var isMaster;
+	var ismaster;
 	//プレイヤー一覧生成
 	socket.on("make_playerList",function(data){
 		document.getElementById("players").innerHTML = "<div> プレイヤー一覧 </div>";
 		for (var player in data.nameDict){
 			var html = player + "　　　点数：" + data.nameDict[player][1];
-			var htmlTag = "<div>" ;
+			var htmlTag = '<div name=' + player +'>' ;
 			if (player == u_name){
-				isMaster = data.nameDict[player][0];
-				htmlTag =  "<div style=\"color:blue\">";
-				console.log("isMaster："+isMaster);
+				ismaster = data.nameDict[player][0];
+				htmlTag =  '<div style="color:blue" name=' + player +'>' ;
+				console.log("ismaster："+ismaster);
 			}
 			if (data.nameDict[player][0]){
 					html = "Master -> " + html;
@@ -376,6 +381,7 @@ $(function(){
 	});	
 
 	//お題の変更
+	var kakite = "everyone";
 	socket.on("send_odai_fromServer",function(data){
 		console.log("お題表示変更");
 		if (data.name == u_name || data.name == "everyone" ){
@@ -383,12 +389,45 @@ $(function(){
 		} else {
 			document.getElementById("odai").innerHTML = "<h2 style=\"text-align:center\"><font size=\"7\"> 描き手は" + data.name + "さん</font></td>";
 		}
+		$("#odai").append('<div style="text-align: center;" >' +data.round + "</div>");
+		kakite = data.name;
 		odai = data.odai;
+		if (odai == "現在終了中..."){
+			document.getElementById("gameReset").style.display = "revert";
+		}else{
+			document.getElementById("gameReset").style.display = "none";
+		}
 	});	
+
+	//ゲームカウント，描画時間，インターバルタイム，お手付き時間の設定
+	$("#setGameTimes").submit(function(e) {
+		console.log(parseInt($("#gameCount").val() ,10));
+		if (ismaster){
+			if ( !(isNaN(parseInt($("#gameCount").val() ,10))) && !(isNaN(parseInt($("#drowTime").val() ,10))) && !(isNaN(parseInt($("#intervalTime").val() ,10))) && !(isNaN(parseInt($("#nowBadTime").val()))) ) {
+				socket.emit("set_game_time" , {
+					gameCount : parseInt($("#gameCount").val() ,10) ,
+					drowTime : parseInt($("#drowTime").val() ,10) ,
+					intervalTime : parseInt($("#intervalTime").val() ,10) ,
+					nowBadTime : parseInt($("#nowBadTime").val() ,10) 
+				});
+				document.getElementById("startTimer").removeAttribute("disabled");
+			}
+		} else{
+			alert('ゲーム設定はマスターしかできません( ‘д‘⊂彡☆))Д´) ﾊﾟｰﾝw');
+		}
+		e.preventDefault();
+	});
+
+	//ゲームの初期値色々の表示
+	socket.on("setGameTimes_fromServer",function(data){
+		document.getElementById("setGameTimes").innerHTML = '<main><div><div>ラウンド数：' + data.gameCount + '回</div><div>制限時間：' + data.drowTime +'秒</div></div><div><div>インターバル：' + data.intervalTime + '秒</div><div>お手付き時間：' + data.nowBadTime + '秒</div></div></main>';
+		nowBadTime = data.nowBadTime;
+		nowtime = data.nowBadTime;
+	});
 
 	//サーバーからタイマーを起動
 	socket.on("startTimer_fromServer",function(data){
-		if (isMaster){
+		if (ismaster){
 			document.getElementById("stopTimer").removeAttribute("disabled");
 			document.getElementById("startTimer").setAttribute("disabled" , true);
 			console.log("スタート");
@@ -397,7 +436,7 @@ $(function(){
 
 	//サーバーからタイマー停止
 	socket.on("stopTimer_fromServer",function(data){
-		if (isMaster){
+		if (ismaster){
 			document.getElementById("startTimer").removeAttribute("disabled");
 			document.getElementById("stopTimer").setAttribute("disabled" , true);
 			console.log("停止");
@@ -406,7 +445,6 @@ $(function(){
 
 	//マスター権限が移った際にボタンを押せるようにする
 	socket.on('master_change' , function(data) {
-		console.log("titmerFlag："+data.timerFlag);
 		if (!data.badAnswerTimer){
 			document.getElementById("startTimer").removeAttribute("disabled");
 			document.getElementById("stopTimer").setAttribute("disabled" , true);
@@ -421,14 +459,10 @@ $(function(){
     	for (var msg in data.value){
 			$(data.value[msg]).prependTo("#chat");
 		}
-		console.log("log fix complete!!");
-	});
-
-	//同じ名前が使われていないかどうか？＋マスターかどうか？
-	var isSameName;
-	socket.on("is_same_name" , function(data){
-		isSameName = data.flag;
-		console.log("koko da yo!!");//特に意味のないログ
+		for (var drow in data.canvasDict){
+			draw_line(data.canvasDict[drow]);
+		}
+		console.log("log fix compleet!!");
 	});
 
 //〜〜〜〜〜〜〜〜〜〜〜↑ここまでｱﾕﾑ
@@ -444,17 +478,13 @@ $(function(){
         socket.on("server_to_client", function(data){appendMsg(data.value)});
         function appendMsg(text) {
 			$(text).prependTo("#chat");
-            //$("#chat").append("<div>" + text + "</div>"); ログを上詰めにするため少し変えました
 		}
 
 		const urlParams = new URLSearchParams(window.location.search);
 		const r_name = urlParams.get('roomName');
 		const u_name = urlParams.get('userName');
 		console.log(u_name,r_name);
-		socket.emit("client_to_server_join", {value : r_name , name : u_name});
-		socket.emit("client_to_server_addPlayer", {value : u_name});
-		setTimeout( afterAddPlayer , 100); //←前の処理が終わるのを待って実行（仮）Promise?とかで非同期処理対策しなければ... */
-
+		afterAddPlayer(r_name , u_name);
 
 		//formのタグで一括同じ処理させられてみたいなので，特定のid名つけてあげて下さい（仮id："formInline"）
         $("#formInline").submit(function(e) {
@@ -463,24 +493,18 @@ $(function(){
             $("#msgForm").val('');
             message = "[" + u_name + "]: " + message;
             // C03. client_to_serverイベント・データを送信する
-            socket.emit("client_to_server", {value : message , isMsg : true});
+            socket.emit("client_to_server" ,  {value : message , isMsg : true});
             e.preventDefault();
         });
 
-		function afterAddPlayer() {
-    		console.log(isSameName);
-    		if (isSameName){
-            	var entryMessage = u_name + "さんが入室しました。";
-                // C05. client_to_server_broadcastイベント・データを送信する
-                socket.emit("client_to_server_broadcast", {value : entryMessage});
-                // C06. client_to_server_personalイベント・データを送信する
-                socket.emit("client_to_server_personal", /*{value : name}*/"");
-                //changeLabel();
-            } else {
-            	alert('その名前は既に使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
-            }
+		function afterAddPlayer(roomName , userName) {
+			socket.emit("client_to_server_join", {value : roomName , name : userName});
+			socket.emit("client_to_server_addPlayer", {value : userName});
+			var entryMessage = userName + "さんが入室しました。";
+			// C05. client_to_server_broadcastイベント・データを送信する
+			socket.emit("client_to_server_broadcast", {value : entryMessage});
+			// C06. client_to_server_personalイベント・データを送信する
+			socket.emit("client_to_server_personal", /*{value : name}*/"");
 		}
-		
-		//追加項目
 		//--------------------↑ここまでｷﾔﾏ
 	});

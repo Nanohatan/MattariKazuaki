@@ -11,59 +11,72 @@ html(lang='ja')
   body#allBody
     // 1：ここから追加
     .row
-      #odai.col-sm-12.col-md-8
-        h2(style='text-align:center')
-          font(size='7') ゲーム開始待ち…
-      .col-sm-12.col-md-4
+      .col-sm-12.col-md-7
+        #odai
+          h2(style='text-align:center')
+            font(size='7') ゲーム開始待ち…
+        form#gameReset(style='display:none; text-align: center; ')
+          button.btn.btn-info(type='submit') はじめから
+      .col-sm-12.col-md-1
         #badAnswerTimer
           h2
             | 0秒
-        #otetukiTimer
-          div  お手付きタイマー
-        select#themeName.form-control
-          option(value='' hidden='') お題を選んでね
-          option(value='easy') 初級
-          option(value='normal') 中級
-          option(value='hard') 上級
         form#startTimerForm
-          input#startTimer.btn.btn-dark(type='submit' value='Game Start' disabled='false')
+          input#startTimer.btn.btn-secondary(type='submit' value='スタート' disabled='false')
         form#stopTimerForm
-          input#stopTimer.btn.btn-dark(type='submit' value='Stop Timer' disabled='false')
+          input#stopTimer.btn.btn-secondary(type='submit' value='ストップ' disabled='false')
+      .col-sm-12.col-md-4
+        form#setGameTimes
+          main
+            div
+              div
+                | ラウンド数：
+                input#gameCount.form-control(type='number' style='padding: 1px 2px; height: 25px;')
+                | 回
+              div
+                | 制限時間：
+                input#drowTime.form-control(type='number' style='padding: 1px 2px; height: 25px;')
+                | 秒
+            div
+              div
+                | インターバル：
+                input#intervalTime.form-control(type='number' style='padding: 1px 2px; height: 25px;')
+                | 秒
+              div
+                | お手付き時間：
+                input#nowBadTime.form-control(type='number' style='padding: 1px 2px; height: 25px;')
+                | 秒
+            button.btn.btn-success(type='submit') send
     // 1：ここまで
-    .row
+    .row(style='padding: 15px;')
       .col-sm-12.col-md-8
         canvas#mycanvas(width='640' height='360') Canvasに対応した最新のブラウザをお使いください
-      //
-        <form id="timerStart">
-        <input type="button" value="カウント開始" id="startcount" onclick="startShowing();">
-        </form>
-        <form id="timerStop">
-        <input type="button" value="カウント停止" id="endcount" onclick="stopShowing();">
-        </form>
-        <p id="PassageArea">(ここにカウントが表示されます)</p>
-      .col-sm-12.col-md-4
-        //
-          多分いらない... 元のメッセージとか名前
-          <form id="send">
-          <input type="text" id="name" class="form-control" placeholder="name" required>
-          <input type="text" id="msg" class="form-control" placeholder="message" required>
-          <button type="submit" class="btn btn-primary btn-default">Send!</button>
-          </form>
+      .col-sm-12.col-md-4(style='border: 1px solid #aaa; border-radius: 4px; padding: 5px 10px;')
         // 2：ここから追加
-        form#answer
-          input#userAnswer.form-control(type='text' placeholder='say answer!!' required='')
-        form#stampButton
-          button#stmB.btn.btn-success(type='submit') stamp
-        //- form#stampButton
-        //-   button.btn.btn-success(type='submit') stamp
-        ul#players(style='list-style:none;')
-          li  プレイヤー一覧 
-        // 2：ここまで
-        div(style='background-color:#fff;overflow-y:scroll;width:300px; height:280px')
-          ul#chat(style='list-style:none;')
-        form#formInline.form-inline
-          | コメント：
-          input#msgForm.form-control(type='text' placeholder='coment')
+        div(style='list-style:none; padding:10px;')
+          ul#players
+            li  プレイヤー一覧 
+          // 2：ここまで
+          div(style='background-color:#fff;overflow-y:scroll;width:300px; height:280px; border-radius: 4px; ')
+            ul#chat(style='list-style:none; padding:5px 30px;')
+        div(style='border: 1px solid #aaa; border-radius: 4px; padding: 10px;')
+          #otetukiTimer
+            div  お手付きタイマー
+          select#themeName.form-control
+            option(value='' hidden='') お題を選んでね
+            option(value='easy') 初級
+            option(value='normal') 中級
+            option(value='hard') 上級
+          div(style='display: flex;')
+            div 解答：
+            form#answer(style='display: flex;')
+              input#userAnswer.form-control(type='text' placeholder='say answer!!' style='width:230px;')
+          div(style='display: flex;')
+            div コメント：
+            form#formInline
+              input#msgForm.form-control(type='text' placeholder='coment' style='width:200px;')
+            form#stampButton(style='padding:0px 5px;')
+              input#stmB.stmp_btn(type='image' src='./img/test2.png' style='width:25px; height:25px; margin: 5px 0;')
     // カラーピッカーここから
     .container
       input.pickr(type='text')
@@ -86,18 +99,6 @@ html(lang='ja')
           label
             | Pen size:	
             input#penWidth.sliders(type='text' data-slider-max='25' data-slider-min='1' data-slider-value='1')
-      //
-        <select id="penColor">
-        <option value="black">黒</option>
-        <option value="red">赤</option>
-        <option value="blue">青</option>
-        <option value="white">白</option>
-        </select>
-        <select id="penWidth">
-        <option value="1">細</option>
-        <option value="3">並</option>
-        <option value="5">太</option>
-        </select>
     div
       .col-md-6
         button#erase.btn.btn-primary.btn-lg(type='button') 消去

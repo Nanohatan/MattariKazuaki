@@ -43,7 +43,10 @@
 </div>
 
 </body>
+
 <script>
+    var socket = io.connect();
+    
     function validateForm(){
       var rn = document.forms[0]["roomName"].value;
       var un = document.forms[0]["userName"].value;
@@ -51,14 +54,9 @@
       if ( rn=="" || un=="" ){
         msg.innerHTML="部屋名・名前はうめてね";
         return false;
-      }
-    //   <!-- 同名者の入室禁止処理追加＠アユム -->
-      const userNameList = [] ;
-      for (var i in userNameList) {
-          if (un == i ){
-              alert('その名前は既にルーム内で使用されています|ﾉ･ω･)ﾉ⌒(*･-･)');
-              return false;
-          }
+      } else if (un.length >= 10) {
+          msg.innerHTML='名前は10文字以下にしてね(｡-人-｡)';
+          return false;
       }
       return true;
     }
